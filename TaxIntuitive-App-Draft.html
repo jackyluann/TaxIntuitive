@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxIntuitive App Draft</title>
+</head>
+<body>
+<style>
+  #tiapp{
+    --brand:#12b886; --brand-dark:#0f9c74; --accent:#ff922b;
+    --bg:#f2f2f7; --card:#ffffff; --ink:#1c1c1e; --muted:#8a8a8e; --sep:#e4e4ea;
+    --blur:rgba(249,249,251,.82); --radius:16px;
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-family:var(--font); color:var(--ink); -webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;align-items:center;gap:16px;
+    padding:26px 16px;min-height:100%;
+    background:radial-gradient(1200px 600px at 50% -10%, #e7f7f0 0%, #eef2f6 45%, #e9edf2 100%);
+  }
+  #tiapp *{box-sizing:border-box}
+  #tiapp .caption{max-width:390px;text-align:center;color:#3a4a45;font-size:13.5px;line-height:1.5}
+  #tiapp .caption b{color:var(--brand-dark)}
+
+  /* device */
+  #tiapp .device{width:390px;max-width:94vw;height:min(830px,88vh);background:#000;border-radius:54px;
+    padding:12px;box-shadow:0 30px 70px rgba(6,60,45,.32), 0 0 0 2px #1a1a1a inset;position:relative}
+  #tiapp .screenwrap{position:relative;width:100%;height:100%;background:var(--bg);border-radius:44px;overflow:hidden;display:flex;flex-direction:column}
+
+  /* status bar */
+  #tiapp .status{position:relative;z-index:6;height:52px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+    padding:0 26px;font-weight:700;font-size:15px;background:transparent}
+  #tiapp .status .r{display:flex;align-items:center;gap:6px}
+  #tiapp .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:112px;height:33px;background:#000;border-radius:20px;z-index:7}
+  #tiapp .bars{display:flex;align-items:flex-end;gap:2px;height:12px}
+  #tiapp .bars i{width:3px;background:var(--ink);border-radius:1px}
+  #tiapp .bars i:nth-child(1){height:5px}#tiapp .bars i:nth-child(2){height:7px}#tiapp .bars i:nth-child(3){height:9px}#tiapp .bars i:nth-child(4){height:12px}
+  #tiapp .batt{width:24px;height:12px;border:1.5px solid var(--ink);border-radius:3px;position:relative;padding:1.5px}
+  #tiapp .batt::after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:6px;background:var(--ink);border-radius:0 1px 1px 0}
+  #tiapp .batt i{display:block;height:100%;width:78%;background:var(--ink);border-radius:1px}
+
+  /* nav bar */
+  #tiapp .nav{position:relative;z-index:6;flex:0 0 auto;height:44px;display:flex;align-items:center;justify-content:center;
+    padding:0 12px;background:var(--blur);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:.5px solid var(--sep)}
+  #tiapp .nav .title{font-weight:700;font-size:16.5px}
+  #tiapp .nav .back{position:absolute;left:10px;display:none;align-items:center;gap:3px;color:var(--brand-dark);font-weight:600;
+    font-size:16px;background:none;border:none;cursor:pointer;font-family:var(--font)}
+  #tiapp .nav .back svg{width:12px;height:20px}
+  #tiapp .nav.hasback .back{display:inline-flex}
+
+  /* scroll area */
+  #tiapp .body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:96px}
+  #tiapp .screen{display:none;padding:6px 16px 8px}
+  #tiapp .screen.on{display:block;animation:fade .22s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  #tiapp .large{font-size:32px;font-weight:800;letter-spacing:-.6px;margin:6px 2px 14px}
+  #tiapp .sub{color:var(--muted);font-size:14px;margin:-8px 2px 16px}
+
+  /* generic ios pieces */
+  #tiapp .hero{border-radius:22px;padding:22px;color:#fff;background:linear-gradient(140deg,#0f9c74,#0ca678 60%,#12b886);box-shadow:0 12px 30px rgba(16,110,84,.28);margin-bottom:18px}
+  #tiapp .hero .k{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;opacity:.9}
+  #tiapp .hero h2{font-size:24px;line-height:1.15;margin:8px 0 6px;letter-spacing:-.4px}
+  #tiapp .hero p{margin:0 0 16px;font-size:14px;opacity:.95}
+  #tiapp .btn{display:inline-block;border:none;font-family:var(--font);font-weight:700;font-size:15px;cursor:pointer;
+    border-radius:13px;padding:13px 20px;text-decoration:none;text-align:center}
+  #tiapp .btn.fill{background:#fff;color:var(--brand-dark);width:100%}
+  #tiapp .btn.green{background:var(--brand);color:#fff;width:100%}
+  #tiapp .btn.orange{background:var(--accent);color:#fff;width:100%}
+
+  #tiapp .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  #tiapp .tile{text-align:left;background:var(--card);border:none;border-radius:18px;padding:16px;cursor:pointer;font-family:var(--font);
+    box-shadow:0 4px 14px rgba(20,60,50,.06)}
+  #tiapp .tile .e{font-size:26px}
+  #tiapp .tile .t{font-weight:700;font-size:14.5px;margin-top:8px;color:var(--ink)}
+  #tiapp .tile .d{color:var(--muted);font-size:12px;margin-top:2px;line-height:1.35}
+
+  #tiapp .glabel{font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:20px 6px 7px}
+  #tiapp .list{background:var(--card);border-radius:14px;overflow:hidden;box-shadow:0 4px 14px rgba(20,60,50,.05)}
+  #tiapp .row{display:flex;align-items:center;gap:13px;width:100%;text-align:left;background:none;border:none;cursor:pointer;
+    font-family:var(--font);padding:14px 16px;border-top:.5px solid var(--sep);color:var(--ink)}
+  #tiapp .row:first-child{border-top:none}
+  #tiapp .row .ic{width:30px;height:30px;border-radius:8px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
+  #tiapp .row .main{flex:1;min-width:0}
+  #tiapp .row .rt{font-weight:600;font-size:15.5px}
+  #tiapp .row .rd{color:var(--muted);font-size:12.5px;margin-top:1px}
+  #tiapp .row .chev{color:#c4c4cc;font-size:18px;flex:0 0 auto}
+
+  #tiapp .card2{background:var(--card);border-radius:16px;padding:18px;box-shadow:0 4px 14px rgba(20,60,50,.05);margin-bottom:14px}
+  #tiapp .card2 h3{margin:0 0 6px;font-size:17px}
+  #tiapp .card2 p{margin:6px 0;font-size:14.5px;color:#33413d;line-height:1.55}
+  #tiapp .take{background:#f6fdfa;border:1px dashed #bde8d7;border-radius:12px;padding:12px 14px;margin-top:10px}
+  #tiapp .take .tt{font-weight:800;font-size:11.5px;color:var(--brand-dark);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+  #tiapp .take ul{margin:0;padding-left:17px}#tiapp .take li{font-size:13px;margin-bottom:4px;color:#33413d}
+
+  /* accordion */
+  #tiapp .acc .q{display:flex;justify-content:space-between;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:none;
+    font-family:var(--font);cursor:pointer;color:var(--ink);padding:14px 16px;border-top:.5px solid var(--sep);font-weight:600;font-size:15px}
+  #tiapp .acc .row0:first-child .q{border-top:none}
+  #tiapp .acc .plus{color:var(--brand);font-weight:800;font-size:19px;transition:.2s}
+  #tiapp .acc .row0.open .plus{transform:rotate(45deg)}
+  #tiapp .acc .a{max-height:0;overflow:hidden;transition:max-height .28s ease}
+  #tiapp .acc .a p{margin:0;padding:0 16px 14px;color:var(--muted);font-size:13.5px;line-height:1.5}
+
+  /* video */
+  #tiapp .vfeat{border-radius:16px;overflow:hidden;box-shadow:0 6px 18px rgba(20,60,50,.12);margin-bottom:14px}
+  #tiapp .vthumb{aspect-ratio:16/9;background:linear-gradient(135deg,#0f2f28,#0f9c74);display:flex;align-items:center;justify-content:center;color:#fff}
+  #tiapp .vthumb .play{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:22px}
+  #tiapp .vmeta{background:var(--card);padding:14px 16px}
+  #tiapp .vmeta .chip{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--brand-dark);background:#e7f7f0;padding:3px 9px;border-radius:999px}
+  #tiapp .vmeta h3{margin:7px 0 0;font-size:16px}
+  #tiapp .vrow{display:flex;gap:12px;align-items:center;padding:11px 0;border-top:.5px solid var(--sep)}
+  #tiapp .vrow .vt{width:70px;height:44px;border-radius:9px;flex:0 0 auto;background:linear-gradient(135deg,#0f2f28,#0f9c74);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+  #tiapp .vrow .vx{font-size:13.5px;font-weight:600;line-height:1.3}
+  #tiapp .vrow .vc{color:var(--muted);font-size:11.5px}
+
+  /* progress */
+  #tiapp .ring{width:120px;height:120px;border-radius:50%;margin:2px auto 10px;display:flex;align-items:center;justify-content:center;
+    background:conic-gradient(var(--brand) var(--p,35%), #e6ecea 0)}
+  #tiapp .ring .in{width:96px;height:96px;border-radius:50%;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center}
+  #tiapp .ring .pv{font-size:26px;font-weight:800}#tiapp .ring .pl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  #tiapp .track{margin:12px 0}
+  #tiapp .track .tl{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;margin-bottom:5px}
+  #tiapp .track .tb{height:8px;background:#e6ecea;border-radius:999px;overflow:hidden}
+  #tiapp .track .tb i{display:block;height:100%;border-radius:999px}
+  #tiapp .badges{display:flex;gap:8px;justify-content:center;margin-top:6px}
+  #tiapp .bdg{font-size:12px;font-weight:800;padding:6px 12px;border-radius:999px;background:#eef2f0;color:var(--muted)}
+  #tiapp .bdg.on{background:var(--brand);color:#fff}
+
+  /* quiz demo */
+  #tiapp .opt{display:block;width:100%;text-align:left;font-family:var(--font);background:var(--card);border:1.5px solid var(--sep);
+    border-radius:13px;padding:14px 16px;margin-bottom:10px;font-size:15px;cursor:pointer;color:var(--ink)}
+  #tiapp .opt.correct{border-color:var(--brand);background:#e7f6ec}
+  #tiapp .opt.wrong{border-color:#e0554e;background:#fdecec}
+  #tiapp .exp{background:#eef7f3;border:1px solid #d5ebe2;border-radius:12px;padding:12px 14px;font-size:13.5px;display:none;margin-bottom:12px}
+  #tiapp .exp.on{display:block}
+
+  /* founder */
+  #tiapp .founder{display:flex;gap:14px;align-items:center;margin-bottom:6px}
+  #tiapp .av{width:64px;height:64px;border-radius:18px;flex:0 0 auto;background:linear-gradient(135deg,var(--brand),var(--teal,#0ca678));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:28px}
+  #tiapp .founder .fn{font-weight:800;font-size:17px}
+  #tiapp .founder .fr{color:var(--brand-dark);font-weight:700;font-size:12.5px}
+  #tiapp .founder .fl{color:var(--muted);font-size:12px}
+
+  /* tab bar */
+  #tiapp .tabs{position:absolute;left:0;right:0;bottom:0;z-index:8;height:84px;display:flex;
+    background:var(--blur);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-top:.5px solid var(--sep);padding-bottom:18px}
+  #tiapp .tab{flex:1;background:none;border:none;cursor:pointer;font-family:var(--font);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#9a9aa0}
+  #tiapp .tab svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.7}
+  #tiapp .tab .lbl{font-size:10.5px;font-weight:600}
+  #tiapp .tab.on{color:var(--brand)}
+  #tiapp .homebar{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:#000;opacity:.85;z-index:9}
+</style>
+
+<div id="tiapp">
+  <p class="caption">A draft of the <b>TaxIntuitive iOS app</b>, designed in Apple's style. Tap the bottom tabs to move around, and tap cards and rows to open sections. All the website material is here.</p>
+
+  <div class="device">
+    <div class="screenwrap">
+      <div class="island"></div>
+      <div class="status">
+        <span>9:41</span>
+        <span class="r">
+          <span class="bars"><i></i><i></i><i></i><i></i></span>
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="#1c1c1e"><path d="M8.5 2.5c2 0 3.8.8 5.1 2.1l1.2-1.3C13.3 1.6 11 .7 8.5.7S3.7 1.6 2.2 3.3L3.4 4.6C4.7 3.3 6.5 2.5 8.5 2.5zM8.5 6c1 0 2 .4 2.7 1.1l1.2-1.3C11.3 4.7 10 4.1 8.5 4.1S5.7 4.7 4.6 5.8L5.8 7.1C6.5 6.4 7.5 6 8.5 6zM8.5 9.5l1.6-1.7C9.7 7.3 9.1 7.1 8.5 7.1S7.3 7.3 6.9 7.8L8.5 9.5z"/></svg>
+          <span class="batt"><i></i></span>
+        </span>
+      </div>
+
+      <div class="nav" id="nav">
+        <button class="back" id="backBtn" aria-label="Back"><svg viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10 2 2 10l8 8"/></svg>Back</button>
+        <span class="title" id="navTitle">Home</span>
+      </div>
+
+      <div class="body" id="body">
+
+        <!-- HOME -->
+        <section class="screen on" id="s-home" data-tab="home" data-title="Home">
+          <h1 class="large">TaxIntuitive</h1>
+          <div class="hero">
+            <div class="k">Financial literacy</div>
+            <h2>Your money. Your taxes. Your future.</h2>
+            <p>Taxes and money, in plain language, built for young Canadians.</p>
+            <button class="btn fill" data-go="learn">Start learning</button>
+          </div>
+          <div class="glabel">Jump in</div>
+          <div class="grid">
+            <button class="tile" data-go="learn"><div class="e">📘</div><div class="t">Learn the Basics</div><div class="d">Your starting guide</div></button>
+            <button class="tile" data-go="quizzes"><div class="e">🧠</div><div class="t">Quizzes</div><div class="d">Test yourself</div></button>
+            <button class="tile" data-go="videos"><div class="e">🎥</div><div class="t">Ask a Tax Expert</div><div class="d">Short videos</div></button>
+            <button class="tile" data-go="simulator"><div class="e">🎮</div><div class="t">Simulator</div><div class="d">Survive year one</div></button>
+          </div>
+          <div class="glabel">Your progress</div>
+          <button class="row" data-go="progress" style="border-radius:14px;box-shadow:0 4px 14px rgba(20,60,50,.05)">
+            <span class="ic" style="background:var(--accent)">🏅</span>
+            <span class="main"><span class="rt">Financial Literacy Score</span><span class="rd">Bronze · 35% complete</span></span>
+            <span class="chev">›</span>
+          </button>
+        </section>
+
+        <!-- LEARN -->
+        <section class="screen" id="s-learn" data-tab="learn" data-title="Learn">
+          <h1 class="large">Learn the Basics</h1>
+          <p class="sub">Read these seven parts, then take a quiz. Tap a part to open it.</p>
+          <div class="list acc" id="learnAcc"></div>
+          <div style="margin-top:16px"><button class="btn orange" data-go="quizzes">I am ready, take me to the quizzes</button></div>
+        </section>
+
+        <!-- QUIZZES -->
+        <section class="screen" id="s-quizzes" data-tab="quizzes" data-title="Quizzes">
+          <h1 class="large">Quizzes</h1>
+          <p class="sub">Pick a topic. Every answer comes with a simple explanation.</p>
+          <div class="list" id="quizList"></div>
+          <div style="margin-top:16px"><button class="btn green" data-go="quizdemo">Try a quick sample</button></div>
+        </section>
+
+        <!-- QUIZ DEMO (pushed) -->
+        <section class="screen" id="s-quizdemo" data-tab="quizzes" data-title="Sample quiz" data-parent="quizzes">
+          <h1 class="large" id="qdCount">Question 1 of 3</h1>
+          <div class="card2">
+            <h3 id="qdQ" style="font-size:17px;line-height:1.35"></h3>
+            <div id="qdOpts" style="margin-top:12px"></div>
+            <div class="exp" id="qdExp"></div>
+            <button class="btn green" id="qdNext" style="display:none">Next</button>
+          </div>
+        </section>
+
+        <!-- VIDEOS -->
+        <section class="screen" id="s-videos" data-tab="videos" data-title="Videos">
+          <h1 class="large">Ask a Tax Expert</h1>
+          <p class="sub">Real questions, answered on video.</p>
+          <div class="vfeat">
+            <div class="vthumb"><div class="play">▶</div></div>
+            <div class="vmeta"><span class="chip">Your Paycheque</span><h3>You got your first job. How much are you actually taking home?</h3></div>
+          </div>
+          <div class="glabel">Episodes</div>
+          <div class="list" style="padding:2px 16px" id="vidList"></div>
+        </section>
+
+        <!-- MORE -->
+        <section class="screen" id="s-more" data-tab="more" data-title="More">
+          <h1 class="large">More</h1>
+          <div class="glabel">Keep going</div>
+          <div class="list">
+            <button class="row" data-go="simulator"><span class="ic" style="background:#4c6ef5">🎮</span><span class="main"><span class="rt">Tax Simulator</span><span class="rd">Survive your first year</span></span><span class="chev">›</span></button>
+            <button class="row" data-go="progress"><span class="ic" style="background:var(--accent)">🏅</span><span class="main"><span class="rt">XP Tracker</span><span class="rd">Your literacy score</span></span><span class="chev">›</span></button>
+          </div>
+          <div class="glabel">About</div>
+          <div class="list">
+            <button class="row" data-go="about"><span class="ic" style="background:var(--brand)">💬</span><span class="main"><span class="rt">About</span><span class="rd">Meet the founder</span></span><span class="chev">›</span></button>
+            <button class="row" data-go="faq"><span class="ic" style="background:#0ca678">❓</span><span class="main"><span class="rt">FAQ</span><span class="rd">Common questions</span></span><span class="chev">›</span></button>
+            <button class="row" data-go="workshop"><span class="ic" style="background:#adb5bd">📍</span><span class="main"><span class="rt">Find a Workshop</span><span class="rd">Coming soon</span></span><span class="chev">›</span></button>
+          </div>
+        </section>
+
+        <!-- SIMULATOR (pushed) -->
+        <section class="screen" id="s-simulator" data-tab="more" data-title="Simulator" data-parent="more">
+          <h1 class="large">Survive Your First Year</h1>
+          <div class="card2">
+            <p><b>Can you survive your first year after high school?</b></p>
+            <p>You are 18 with a part-time job. Make money and tax choices across the year and see what kind of financially literate adult you become. Earn Bronze, Silver, or Gold.</p>
+          </div>
+          <div class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+            <div class="card2" style="margin:0;text-align:center"><div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px">Starting cash</div><div style="font-size:22px;font-weight:800;color:var(--brand-dark)">$1,200</div></div>
+            <div class="card2" style="margin:0;text-align:center"><div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px">Money smarts</div><div style="font-size:22px;font-weight:800;color:var(--accent)">0</div></div>
+          </div>
+          <button class="btn green" onclick="alert('In the finished app, the full simulator runs here.')">Start your first year</button>
+        </section>
+
+        <!-- PROGRESS (pushed) -->
+        <section class="screen" id="s-progress" data-tab="more" data-title="Progress" data-parent="more">
+          <h1 class="large">Financial Literacy Score</h1>
+          <div class="card2" style="text-align:center">
+            <div class="ring" style="--p:35%"><div class="in"><div class="pv">35%</div><div class="pl">Score</div></div></div>
+            <div class="badges"><span class="bdg on">🥉 Bronze</span><span class="bdg">🥈 Silver</span><span class="bdg">🥇 Gold</span></div>
+          </div>
+          <div class="glabel">Your tracks</div>
+          <div class="card2">
+            <div class="track"><div class="tl"><span>Taxes</span><span>60%</span></div><div class="tb"><i style="width:60%;background:#12b886"></i></div></div>
+            <div class="track"><div class="tl"><span>Banking</span><span>25%</span></div><div class="tb"><i style="width:25%;background:#0ca678"></i></div></div>
+            <div class="track"><div class="tl"><span>Credit</span><span>40%</span></div><div class="tb"><i style="width:40%;background:#ff922b"></i></div></div>
+            <div class="track"><div class="tl"><span>Investing</span><span>15%</span></div><div class="tb"><i style="width:15%;background:#4c6ef5"></i></div></div>
+          </div>
+        </section>
+
+        <!-- ABOUT (pushed) -->
+        <section class="screen" id="s-about" data-tab="more" data-title="About" data-parent="more">
+          <h1 class="large">About</h1>
+          <div class="card2">
+            <div class="founder">
+              <div class="av">J</div>
+              <div><div class="fn">Jacky Luan</div><div class="fr">Founder · Budding entrepreneur</div><div class="fl">Grade 11 · Vancouver, BC</div></div>
+            </div>
+            <p>I started TaxIntuitive because I want the next generation of adults to be genuinely prepared for the real world. It began with a conversation with my dad, who is a tax specialist, about the gaps he sees every day.</p>
+            <p>TaxIntuitive is a friendly, plain-language place to learn taxes and personal finance through trivia, expert videos, simulators, and clear guides.</p>
+          </div>
+          <div class="glabel">Contact</div>
+          <div class="list"><a class="row" href="mailto:jackyluan777@gmail.com" style="text-decoration:none"><span class="ic" style="background:var(--brand)">✉️</span><span class="main"><span class="rt">Email us</span><span class="rd">jackyluan777@gmail.com</span></span><span class="chev">›</span></a></div>
+        </section>
+
+        <!-- FAQ (pushed) -->
+        <section class="screen" id="s-faq" data-tab="more" data-title="FAQ" data-parent="more">
+          <h1 class="large">FAQ</h1>
+          <div class="list acc" id="faqAcc"></div>
+        </section>
+
+        <!-- WORKSHOP (pushed) -->
+        <section class="screen" id="s-workshop" data-tab="more" data-title="Workshops" data-parent="more">
+          <h1 class="large">Find a Workshop</h1>
+          <div class="card2"><p><b>Coming soon.</b> TaxIntuitive workshops will bring these lessons into classrooms and community spaces. Want us at your school? Reach out from the About screen.</p></div>
+        </section>
+
+      </div>
+
+      <!-- tab bar -->
+      <div class="tabs" id="tabs">
+        <button class="tab on" data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/></svg><span class="lbl">Home</span></button>
+        <button class="tab" data-tab="learn"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h9v16H6a2 2 0 0 0-2 2z"/><path d="M15 3h3a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2h-3"/></svg><span class="lbl">Learn</span></button>
+        <button class="tab" data-tab="quizzes"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2 4.8-5"/></svg><span class="lbl">Quizzes</span></button>
+        <button class="tab" data-tab="videos"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg><span class="lbl">Videos</span></button>
+        <button class="tab" data-tab="more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg><span class="lbl">More</span></button>
+      </div>
+      <div class="homebar"></div>
+    </div>
+  </div>
+
+  <p class="caption">This is a visual layout draft, not a finished app. It shows how TaxIntuitive would feel as an iPhone app: bottom tabs, iOS navigation, and every website section as a screen.</p>
+</div>
+
+<script>
+(function(){
+  var app = document.getElementById("tiapp");
+  var body = document.getElementById("body");
+  var navTitle = document.getElementById("navTitle");
+  var nav = document.getElementById("nav");
+  var backBtn = document.getElementById("backBtn");
+
+  var LEARN = [
+    {t:"1. The basics", d:"The CRA runs taxes. You need a SIN to file. File every year even with no income so you keep your benefits. Report all income, including tips and gig work. A refund is your own overpaid tax coming back."},
+    {t:"2. Your paycheque", d:"Gross pay is what you earn. Net pay is what you keep. Income tax, CPP, and EI come off your pay, which is why it looks smaller. That is normal, not an error."},
+    {t:"3. Tax slips and forms", d:"T4 is job income, T4A is scholarships and some other income, T5 is interest, T2202 is tuition. A TD1 tells your employer how much tax to take off. Tuition can be claimed, carried forward, or transferred."},
+    {t:"4. Filing and deadlines", d:"File online for free with NETFILE. The deadline is April 30. Self-employed people file by June 15 but still pay by April 30. Late filing costs 5% plus 1% per month. Refunds take about two weeks."},
+    {t:"5. Credits and benefits", d:"The GST/HST credit is a tax-free payment. You usually must be 19 or older, and you get it just by filing. Free CRA volunteer clinics can help you file. File every year to keep payments coming."},
+    {t:"6. Saving and growing", d:"A TFSA lets money grow and come out tax free, and you can start at 18. Contributions are not tax deductible, and withdrawn room returns next year. An RRSP lowers tax now but is taxed when you take it out."},
+    {t:"7. Glossary", d:"Quick meanings: CRA, SIN, gross pay, net pay, CPP, EI, NETFILE, refund, GST/HST credit, TFSA, and RRSP."}
+  ];
+  var QUIZTOPICS = [
+    {e:"🧾",t:"The Basics",d:"Who files, why, and refunds",c:"5 questions"},
+    {e:"📄",t:"Slips & Documents",d:"T4, T4A, T5, T2202",c:"5 questions"},
+    {e:"⏰",t:"Deadlines & Penalties",d:"When to file, and late fees",c:"5 questions"},
+    {e:"🎁",t:"Credits & Benefits",d:"GST/HST credit and more",c:"5 questions"},
+    {e:"🌱",t:"Saving & Growing",d:"TFSA vs RRSP",c:"7 questions"}
+  ];
+  var VIDEOS = [
+    "What is income tax, really?","What is CPP, and why is it on my pay stub?","What is EI?",
+    "What is a T4?","How do tax brackets actually work?","When do I have to file a tax return?",
+    "TFSA vs RRSP, what is the difference?","How does GST/HST work?"
+  ];
+  var FAQ = [
+    {q:"Is TaxIntuitive free to use?",a:"Yes. Every learning tool here is free."},
+    {q:"Who is this for?",a:"Mainly high-school and college students and young adults in Canada, especially first-time filers."},
+    {q:"Is this official tax advice?",a:"No. It is for learning only and reflects general Canadian rules, which can change. Always check canada.ca."},
+    {q:"Is the info Canadian or American?",a:"Canadian. It is based on the Canada Revenue Agency and Canadian rules."},
+    {q:"Do I need an account?",a:"No. You can jump straight into the lessons, quizzes, and simulator."}
+  ];
+  var QUIZDEMO = [
+    {q:"Which agency runs income taxes in Canada?",o:["Canada Revenue Agency (CRA)","Service Canada","The Bank of Canada"],a:0,e:"The CRA collects taxes and pays out most benefits."},
+    {q:"You drive for a delivery app on weekends. Do you report that income?",o:["No, gig work is tax free","Yes, all income must be reported","Only over $30,000"],a:1,e:"Tips and gig work must be reported, even without a slip."},
+    {q:"Are withdrawals from a TFSA taxed?",o:["Yes, like income","No, they are tax free","Only over $1,000"],a:1,e:"Money taken out of a TFSA is tax free."}
+  ];
+
+  // build learn accordion
+  var la = document.getElementById("learnAcc");
+  LEARN.forEach(function(x){
+    var w=document.createElement("div"); w.className="row0";
+    w.innerHTML='<button class="q"><span>'+x.t+'</span><span class="plus">+</span></button><div class="a"><p>'+x.d+'</p></div>';
+    var b=w.querySelector(".q"), a=w.querySelector(".a");
+    b.onclick=function(){ var open=w.classList.toggle("open"); a.style.maxHeight=open?a.scrollHeight+"px":"0"; };
+    la.appendChild(w);
+  });
+  // quiz topics
+  var ql=document.getElementById("quizList");
+  QUIZTOPICS.forEach(function(x){
+    var r=document.createElement("button"); r.className="row";
+    r.innerHTML='<span class="ic" style="background:var(--brand);font-size:15px">'+x.e+'</span><span class="main"><span class="rt">'+x.t+'</span><span class="rd">'+x.d+'</span></span><span class="chev">›</span>';
+    r.onclick=function(){ go("quizdemo"); };
+    ql.appendChild(r);
+  });
+  // videos
+  var vl=document.getElementById("vidList");
+  VIDEOS.forEach(function(t,i){
+    var r=document.createElement("div"); r.className="vrow";
+    r.innerHTML='<span class="vt">▶</span><span><span class="vx">'+t+'</span><span class="vc">Episode '+(i+1)+'</span></span>';
+    vl.appendChild(r);
+  });
+  // faq
+  var fa=document.getElementById("faqAcc");
+  FAQ.forEach(function(x){
+    var w=document.createElement("div"); w.className="row0";
+    w.innerHTML='<button class="q"><span>'+x.q+'</span><span class="plus">+</span></button><div class="a"><p>'+x.a+'</p></div>';
+    var b=w.querySelector(".q"), a=w.querySelector(".a");
+    b.onclick=function(){ var open=w.classList.toggle("open"); a.style.maxHeight=open?a.scrollHeight+"px":"0"; };
+    fa.appendChild(w);
+  });
+
+  // router
+  function go(id){
+    var scr=document.getElementById("s-"+id);
+    if(!scr) return;
+    app.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("on"); });
+    scr.classList.add("on");
+    navTitle.textContent = scr.getAttribute("data-title");
+    var tab = scr.getAttribute("data-tab");
+    app.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on", t.getAttribute("data-tab")===tab); });
+    var parent = scr.getAttribute("data-parent");
+    if(parent){ nav.classList.add("hasback"); backBtn.onclick=function(){ go(parent); }; }
+    else{ nav.classList.remove("hasback"); }
+    body.scrollTop = 0;
+    if(id==="quizdemo") startDemo();
+  }
+  app.querySelectorAll("[data-go]").forEach(function(el){ el.addEventListener("click", function(){ go(el.getAttribute("data-go")); }); });
+  app.querySelectorAll(".tab").forEach(function(t){ t.addEventListener("click", function(){ go(t.getAttribute("data-tab")); }); });
+
+  // quiz demo logic
+  var di=0;
+  function startDemo(){ di=0; renderDemo(); }
+  function renderDemo(){
+    var it=QUIZDEMO[di];
+    document.getElementById("qdCount").textContent="Question "+(di+1)+" of "+QUIZDEMO.length;
+    document.getElementById("qdQ").textContent=it.q;
+    var wrap=document.getElementById("qdOpts"); wrap.innerHTML="";
+    it.o.forEach(function(opt,i){
+      var b=document.createElement("button"); b.className="opt"; b.textContent=opt;
+      b.onclick=function(){ pick(i,b); };
+      wrap.appendChild(b);
+    });
+    document.getElementById("qdExp").className="exp";
+    document.getElementById("qdExp").textContent="";
+    document.getElementById("qdNext").style.display="none";
+  }
+  function pick(i,btn){
+    var it=QUIZDEMO[di];
+    var opts=document.getElementById("qdOpts").children;
+    for(var k=0;k<opts.length;k++) opts[k].disabled=true;
+    if(i===it.a){ btn.classList.add("correct"); }
+    else{ btn.classList.add("wrong"); opts[it.a].classList.add("correct"); }
+    var ex=document.getElementById("qdExp"); ex.className="exp on"; ex.textContent=it.e;
+    var nx=document.getElementById("qdNext"); nx.style.display="block";
+    nx.textContent = (di===QUIZDEMO.length-1)?"Finish":"Next";
+    nx.onclick=function(){ if(di<QUIZDEMO.length-1){ di++; renderDemo(); } else { go("quizzes"); } };
+  }
+})();
+</script>
+</body>
+</html>
