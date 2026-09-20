@@ -1,0 +1,67 @@
+{
+  "expo": {
+    "name": "TaxIntuitive",
+    "slug": "taxintuitive",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "taxintuitive",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.taxintuitive.app",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "NSCalendarsUsageDescription": "TaxIntuitive asks for calendar access only when you choose to add a workshop to your calendar.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.taxintuitive.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#12B886",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#12B886",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76,
+          "dark": {
+            "backgroundColor": "#0A1714"
+          }
+        }
+      ],
+      "expo-secure-store",
+      "expo-video",
+      "expo-sharing",
+      "expo-apple-authentication",
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "TaxIntuitive needs calendar access to add a workshop you choose to your calendar."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "supabaseUrl": "",
+      "supabaseAnonKey": ""
+    }
+  }
+}
