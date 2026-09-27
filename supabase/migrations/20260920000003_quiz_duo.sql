@@ -125,15 +125,26 @@ create policy duo_participants_self_update on public.duo_participants
   for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- Hard guard: clients must not change their own score/correct_count/streak.
+-- NOTE: deliberately SECURITY INVOKER (the default), not SECURITY DEFINER.
+-- Inside a SECURITY DEFINER function current_user becomes the function OWNER (postgres), which
+-- would match the trusted-role check below and silently disable this guard entirely.
+-- Verified locally: with SECURITY DEFINER a client could set its own score to 9999.
 create or replace function public.guard_duo_participant_update()
 returns trigger
 language plpgsql
-security definer
+security invoker
 set search_path = public
 as $$
+declare
+  -- Belt and braces: also read the role straight off the JWT, which is definer-independent.
+  jwt_role text := coalesce(
+    nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role',
+    ''
+  );
 begin
-  -- The service role (Edge Functions) bypasses RLS and this check.
-  if auth.role() = 'service_role' then
+  -- Trusted writers: Edge Functions (service role) and direct migration/superuser access.
+  if current_user in ('service_role', 'postgres', 'supabase_admin')
+     or jwt_role = 'service_role' then
     return new;
   end if;
   if new.score <> old.score
