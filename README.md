@@ -20,13 +20,15 @@ not a WebView wrapper**: every website section was reorganised into mobile scree
 | XP Tracker + Achievements — 15 badges | ✅ All derived from real activity, never hard-coded |
 | Videos — 15 episodes | ⚠️ Screens work; **no episodes filmed yet** (see CONTENT-REVIEW.md) |
 | Workshops | ⚠️ Screen + request form work; **no sessions published yet** |
-| Accounts (email, Apple, Google) | 🔧 Code complete, needs a Supabase project |
-| Quiz Duo (realtime 2-player) | 🔧 Code complete, needs Supabase + Edge Functions deployed |
-| Cloud sync + guest→account merge | 🔧 Code complete, needs Supabase |
+| Accounts (email/password) | ✅ Verified against local Supabase (signup, profile trigger, deletion) |
+| Accounts (Apple, Google) | 🔧 Code complete, never exercised against real provider credentials |
+| Quiz Duo (realtime 2-player) | ✅ Full match played end-to-end against local Supabase |
+| Cloud sync + guest→account merge | 🔧 Code complete, unit-tested, not yet exercised on a device |
 
-**Verified locally:** 66 tests pass, TypeScript is clean, and the app bundles for iOS
-(`expo export` produces a 4 MB Hermes bundle). It has **not** yet been run on a device or
-simulator — see *Not yet verified* at the bottom.
+**Verified locally:** 71 tests pass, TypeScript and ESLint are clean, the app bundles for iOS
+(`expo export` produces a 4 MB Hermes bundle), and the whole Supabase stack was applied and
+exercised against a real Postgres — migrations, RLS policies, all 7 Edge Functions, and a complete
+Quiz Duo match. It has **not** yet been run on a device or simulator — see *Not yet verified*.
 
 ---
 
@@ -77,14 +79,52 @@ npm run seed:generate   # regenerate ../supabase/seed.sql from src/content
    (Email, Apple, Google). For Apple you also need an Apple Developer account and a
    Services ID; for Google, an OAuth client.
 
-### Running Supabase locally instead
+### Running Supabase locally
 
-Local Supabase needs Docker Desktop, which is **not installed on this machine**. Once you have it:
+Already set up on this machine, using **Colima** as the Docker runtime (lighter than Docker Desktop
+and driveable entirely from the CLI):
 
 ```bash
-supabase start
-supabase db reset     # applies migrations + seed.sql automatically
+colima start                  # boot the Docker VM (once per reboot)
+cd TaxIntuitive
+supabase start                # bring up Postgres, Auth, PostgREST, Realtime, Storage, Studio
+supabase db reset             # re-apply migrations + seed.sql from scratch
+supabase functions serve      # run the Edge Functions locally
+supabase stop                 # shut it all down
 ```
+
+Studio runs at http://127.0.0.1:54323, the API at http://127.0.0.1:54321.
+`mobile/.env` is already pointed at the local stack (it is gitignored).
+
+The Supabase CLI lives at `~/.local/bin/supabase` — Homebrew's build wanted Xcode Command Line
+Tools, so the prebuilt binary was used instead. Add `~/.local/bin` to your PATH to call it directly.
+
+**What was verified against the local stack:**
+
+| Check | Result |
+|---|---|
+| All 3 migrations apply from scratch | ✅ |
+| seed.sql loads all content | ✅ 11 categories, 16 lessons, 37 questions, 15 videos, 20 glossary terms, 10 FAQs, 11 scenarios, 15 achievements |
+| JSONB lesson bodies / quiz options round-trip | ✅ |
+| anon can read content, cannot read anyone's progress | ✅ |
+| a signed-in user sees only their own rows | ✅ |
+| a user cannot forge an xp_event for someone else | ✅ blocked by RLS |
+| a user cannot insert their own duo_answers | ✅ blocked by RLS |
+| **a user cannot raise their own Duo score** | ✅ blocked by trigger (see note below) |
+| a user can still mark themselves ready | ✅ |
+| non-editors cannot edit content | ✅ blocked by RLS |
+| service role (Edge Functions) can still write scores | ✅ |
+| duplicate answers / duplicate XP awards | ✅ blocked by unique constraints |
+| full Quiz Duo match: create → join → ready → 8 questions → winner | ✅ |
+| speed and streak bonuses | ✅ 149 pts for a 269 ms answer, rising with streak |
+| malformed answer payloads | ✅ rejected, no database write |
+| delete-account cascades user, profile and Duo rows | ✅ all zeroed |
+
+> **A real bug this caught.** The trigger that stops a client raising its own Quiz Duo score was
+> declared `SECURITY DEFINER`. Inside such a function `current_user` is the function *owner*
+> (`postgres`), so the guard matched its own trusted-role check and silently disabled itself — a
+> client could set its score to 9999. It is now `SECURITY INVOKER` and also checks the JWT role
+> claim. Verified by re-running the exploit before and after.
 
 ---
 
@@ -232,13 +272,15 @@ cd mobile && npm test
 
 Being straight about what has and hasn't been checked:
 
-- ✅ TypeScript clean, 66 tests pass, iOS bundle builds.
-- ❌ **Never launched on a simulator or device.** No screenshots, no interaction testing.
-- ❌ **Supabase never applied.** Migrations, RLS policies, Edge Functions and the seed are
-  written but unexecuted — no Docker/Postgres was available here. Expect small fixes on first
-  `db push`.
-- ❌ **Quiz Duo never played end-to-end** (needs two signed-in devices and deployed functions).
+- ✅ TypeScript clean, ESLint clean, 71 tests pass, iOS bundle builds.
+- ✅ Supabase migrations, RLS policies, seed and all 7 Edge Functions applied and exercised
+  against a real local Postgres. A full Quiz Duo match was played end-to-end.
+- ❌ **Never launched on a simulator or device.** No screenshots, no interaction testing. Every
+  screen typechecks and bundles, but no button has been physically tapped.
+- ❌ **Never deployed to a hosted Supabase project** (`db push` / `functions deploy` unrun).
 - ❌ Apple/Google sign-in never exercised against real provider credentials.
+- ❌ Realtime subscriptions never observed with two live clients (the Duo match was driven over
+  HTTP; the postgres_changes subscription code is unproven).
 - ❌ Accessibility: roles/labels/hit targets are set throughout, but no screen-reader pass was run.
 
 See `CONTENT-REVIEW.md` for the content and asset gaps.
