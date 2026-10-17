@@ -9,6 +9,58 @@ not a WebView wrapper**: every website section was reorganised into mobile scree
 
 ---
 
+## Backend deployment — 17 October 2026
+
+The Free-plan Supabase project `friqxppxnchvytmqkfqb` is deployed in Canada (Central).
+Its API is `https://friqxppxnchvytmqkfqb.supabase.co`.
+All four migrations, bundled content, six Quiz Duo functions and `delete-account` are deployed.
+
+Quiz Duo writes are transactional: `duo_command` locks the match while joining, scoring,
+advancing or forfeiting. Only the service role may execute it, and Edge Functions derive the
+user ID from a verified session. Clients cannot insert participants, change scores, or set a
+winner; their only direct write is their own presence timestamp. Answer retries return the
+stored result. The server records missing timeout answers, and the app polls to recover from
+missed Realtime events and retries failed submissions.
+
+Validated against both local and hosted Supabase with disposable accounts: unauthorized writes,
+simultaneous guest joins, complete matches, duplicate answers, score totals and winners,
+two authenticated Realtime subscriptions, disconnected-player timeouts, stale advance requests,
+and repeated forfeits. This is API/Realtime validation, not a two-phone device certification.
+
+From `mobile/`:
+
+```bash
+npm run backend:start                 # Docker Desktop must be running
+npm run backend:serve                 # keep running for local Edge Functions
+npm run backend:configure -- --local  # writes ignored .env, public client keys only
+npm run test:duo                      # local integration tests, disposable accounts
+
+# Connect the app to the hosted project (requires Supabase CLI login):
+npm run backend:configure -- friqxppxnchvytmqkfqb
+# Explicit opt-in to hosted integration tests; creates and deletes its own test accounts:
+npm run test:duo -- friqxppxnchvytmqkfqb
+```
+
+Restart Expo after changing `.env`. A physical phone cannot reach the computer through
+`127.0.0.1`; use the hosted project for device testing. Never place a service-role key in an
+`EXPO_PUBLIC_` variable. Local configuration and CLI login tokens are not committed.
+
+For future backend releases, run from the repository root:
+
+```bash
+npx supabase@2.121.0 link --project-ref friqxppxnchvytmqkfqb
+npx supabase@2.121.0 db push --dry-run
+npx supabase@2.121.0 db push
+npx supabase@2.121.0 functions deploy --project-ref friqxppxnchvytmqkfqb
+```
+
+Do not reseed a live project casually: the seed can overwrite edited content. Public email
+onboarding/delivery and password recovery still need production configuration and device testing;
+Apple and Google sign-in need their provider credentials. The Duo question bank is still shared
+with offline lessons/quizzes, so this mode is intended for casual learning, not ranked competition.
+
+---
+
 ## What works today
 
 | Area | State |
@@ -25,7 +77,7 @@ not a WebView wrapper**: every website section was reorganised into mobile scree
 | Quiz Duo (realtime 2-player) | ✅ Full match played end-to-end against local Supabase |
 | Cloud sync + guest→account merge | 🔧 Code complete, unit-tested, not yet exercised on a device |
 
-**Verified locally:** 71 tests pass, TypeScript and ESLint are clean, the app bundles for iOS
+**Verified locally:** 75 tests pass, TypeScript and ESLint are clean, the app bundles for iOS
 (`expo export` produces a 4 MB Hermes bundle), and the whole Supabase stack was applied and
 exercised against a real Postgres — migrations, RLS policies, all 7 Edge Functions, and a complete
 Quiz Duo match. It has **not** yet been run on a device or simulator — see *Not yet verified*.
@@ -46,7 +98,7 @@ on-device. Supabase is only needed for accounts, sync, and Quiz Duo.
 ### Useful commands
 
 ```bash
-npm test                # 66 unit + integration tests
+npm test                # 75 unit + integration tests
 npm run typecheck       # tsc --noEmit
 npm run lint            # expo lint
 npm run seed:generate   # regenerate ../supabase/seed.sql from src/content
@@ -81,23 +133,9 @@ npm run seed:generate   # regenerate ../supabase/seed.sql from src/content
 
 ### Running Supabase locally
 
-Already set up on this machine, using **Colima** as the Docker runtime (lighter than Docker Desktop
-and driveable entirely from the CLI):
-
-```bash
-colima start                  # boot the Docker VM (once per reboot)
-cd TaxIntuitive
-supabase start                # bring up Postgres, Auth, PostgREST, Realtime, Storage, Studio
-supabase db reset             # re-apply migrations + seed.sql from scratch
-supabase functions serve      # run the Edge Functions locally
-supabase stop                 # shut it all down
-```
-
-Studio runs at http://127.0.0.1:54323, the API at http://127.0.0.1:54321.
-`mobile/.env` is already pointed at the local stack (it is gitignored).
-
-The Supabase CLI lives at `~/.local/bin/supabase` — Homebrew's build wanted Xcode Command Line
-Tools, so the prebuilt binary was used instead. Add `~/.local/bin` to your PATH to call it directly.
+Use Docker Desktop and the pinned CLI commands in the backend deployment section above.
+Studio is available at http://127.0.0.1:54323 and the API at http://127.0.0.1:54321.
+Use `npx supabase@2.121.0 stop` from the repository root to stop services without deleting data.
 
 **What was verified against the local stack:**
 
@@ -151,7 +189,7 @@ TaxIntuitive/
 │   ├── src/providers/           auth · content · progress (React context)
 │   ├── src/components/          design system (ui.tsx, BlockRenderer, Field)
 │   ├── src/theme/               brand tokens, light + dark
-│   └── __tests__/               7 suites, 66 tests
+│   └── __tests__/               9 suites, 75 tests
 ├── supabase/
 │   ├── migrations/              schema + row-level security
 │   ├── functions/               7 TypeScript Edge Functions (Deno)
@@ -272,15 +310,14 @@ cd mobile && npm test
 
 Being straight about what has and hasn't been checked:
 
-- ✅ TypeScript clean, ESLint clean, 71 tests pass, iOS bundle builds.
+- ✅ TypeScript clean, ESLint clean, 75 tests pass, iOS bundle builds.
 - ✅ Supabase migrations, RLS policies, seed and all 7 Edge Functions applied and exercised
   against a real local Postgres. A full Quiz Duo match was played end-to-end.
-- ❌ **Never launched on a simulator or device.** No screenshots, no interaction testing. Every
-  screen typechecks and bundles, but no button has been physically tapped.
-- ❌ **Never deployed to a hosted Supabase project** (`db push` / `functions deploy` unrun).
+- ❌ **Never launched on a simulator or device.** Native-device interaction testing remains outstanding; web preview checks do not replace it.
+- ✅ Hosted schema, content and all seven Edge Functions deployed; Duo integration suite passed.
 - ❌ Apple/Google sign-in never exercised against real provider credentials.
-- ❌ Realtime subscriptions never observed with two live clients (the Duo match was driven over
-  HTTP; the postgres_changes subscription code is unproven).
+- ✅ Two authenticated Realtime clients observed match start and completion in integration tests.
+- ❌ Two physical phones have not yet been used for a complete match.
 - ❌ Accessibility: roles/labels/hit targets are set throughout, but no screen-reader pass was run.
 
 See `CONTENT-REVIEW.md` for the content and asset gaps.

@@ -2,6 +2,7 @@ import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
 /**
  * Supabase is OPTIONAL at runtime.
@@ -19,6 +20,8 @@ const url = process.env.EXPO_PUBLIC_SUPABASE_URL ?? extra.supabaseUrl ?? '';
 const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? extra.supabaseAnonKey ?? '';
 
 export const isSupabaseConfigured = Boolean(url && anonKey);
+// Expo statically renders web routes in Node, where AsyncStorage has no window.
+const isStaticRender = Platform.OS === 'web' && typeof window === 'undefined';
 
 /**
  * Deliberately untyped (`SupabaseClient` without a Database generic).
@@ -29,9 +32,9 @@ export const isSupabaseConfigured = Boolean(url && anonKey);
 export const supabase: SupabaseClient | null = isSupabaseConfigured
   ? createClient(url, anonKey, {
       auth: {
-        storage: AsyncStorage,
-        autoRefreshToken: true,
-        persistSession: true,
+        storage: isStaticRender ? undefined : AsyncStorage,
+        autoRefreshToken: !isStaticRender,
+        persistSession: !isStaticRender,
         // RN has no URL bar to parse a session out of.
         detectSessionInUrl: false,
       },

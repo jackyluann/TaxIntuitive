@@ -1,6 +1,20 @@
 import { AppIcon } from '@/components/AppIcon';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  Share,
+  Text,
+  View,
+} from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
@@ -18,8 +32,19 @@ import {
   touchPresence,
   type SubmitAnswerResult,
 } from '@/lib/duo/client';
-import type { DuoAnswerRow, DuoMatchRow, DuoParticipantRow } from '@/lib/supabase/database.types';
-import { Button, Card, Pill, ProgressBar, StatTile, TIText } from '@/components/ui';
+import type {
+  DuoAnswerRow,
+  DuoMatchRow,
+  DuoParticipantRow,
+} from '@/lib/supabase/database.types';
+import {
+  Button,
+  Card,
+  Pill,
+  ProgressBar,
+  StatTile,
+  TIText,
+} from '@/components/ui';
 import { useContent } from '@/providers/content';
 import { useAuth } from '@/providers/auth';
 import { useProgress } from '@/providers/progress';
@@ -53,33 +78,48 @@ export default function DuoMatchScreen() {
   // 0 until the first tick: calling Date.now() during render is impure.
   const [now, setNow] = useState(0);
   const resultRecorded = useRef(false);
-  /** Question index we already auto-submitted a timeout for, so it only fires once. */
-  const timedOutIndex = useRef<number | null>(null);
-  /** Question index we already asked the server to advance past. */
-  const advancedIndex = useRef<number | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const reloadSequence = useRef(0);
+  const submitting = useRef(false);
+  const reloading = useRef(false);
 
   const reload = useCallback(async () => {
-    if (!matchId) return;
-    const [m, p, a] = await Promise.all([
-      fetchMatch(matchId),
-      fetchParticipants(matchId),
-      fetchAnswers(matchId),
-    ]);
-    setMatch(m);
-    setParticipants(p);
-    setAnswers(a);
-    setLoading(false);
+    if (!matchId || reloading.current) return;
+    reloading.current = true;
+    const sequence = reloadSequence.current;
+    try {
+      const [m, p, a] = await Promise.all([
+        fetchMatch(matchId),
+        fetchParticipants(matchId),
+        fetchAnswers(matchId),
+      ]);
+      if (sequence !== reloadSequence.current) return;
+      setMatch(m);
+      setParticipants(p);
+      setAnswers(a);
+      setConnectionError(null);
+    } catch {
+      if (sequence === reloadSequence.current)
+        setConnectionError('Connection interrupted. Retrying automatically…');
+    } finally {
+      reloading.current = false;
+      if (sequence === reloadSequence.current) setLoading(false);
+    }
   }, [matchId]);
 
-  // Initial load + realtime subscription.
+  // Realtime reduces latency; polling recovers missed events and resumed connections.
   useEffect(() => {
     if (!matchId) return;
-    // reload() only calls setState after `await Promise.all(...)`, so this cannot cascade renders.
-    // The lint rule can't see through the useCallback indirection to prove that.
+    // reload only updates state after the network awaits.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void reload();
     const { unsubscribe } = subscribeToMatch(matchId, () => void reload());
-    return unsubscribe;
+    const poll = setInterval(() => void reload(), 3000);
+    return () => {
+      clearInterval(poll);
+      unsubscribe();
+      reloadSequence.current += 1;
+    };
   }, [matchId, reload]);
 
   // Ticking clock drives the countdown and the presence indicator.
@@ -100,13 +140,18 @@ export default function DuoMatchScreen() {
   const opponent = participants.find((p) => p.user_id !== user?.id) ?? null;
 
   const questionIds = useMemo(
-    () => (match && Array.isArray(match.question_ids) ? (match.question_ids as string[]) : []),
+    () =>
+      match && Array.isArray(match.question_ids)
+        ? (match.question_ids as string[])
+        : [],
     [match],
   );
   const currentIndex = match?.current_index ?? 0;
   // Only honour local answer state if it belongs to the question on screen right now.
-  const chosen = answerState?.index === currentIndex ? answerState.chosen : null;
-  const result = answerState?.index === currentIndex ? (answerState.result ?? null) : null;
+  const chosen =
+    answerState?.index === currentIndex ? answerState.chosen : null;
+  const result =
+    answerState?.index === currentIndex ? (answerState.result ?? null) : null;
   const question: QuizQuestion | undefined = useMemo(() => {
     const id = questionIds[currentIndex];
     return content.questions.find((q) => q.id === id);
@@ -115,42 +160,56 @@ export default function DuoMatchScreen() {
   // Reset per-question local state whenever the server advances.
   /** Seconds left on the current question, derived from the server's question start time. */
   const remaining = useMemo(() => {
-    if (now === 0 || match?.status !== 'active' || !match.question_started_at) return 0;
+    if (now === 0 || match?.status !== 'active' || !match.question_started_at)
+      return 0;
     const started = new Date(match.question_started_at).getTime();
-    const left = Math.max(0, match.seconds_per_question * 1000 - (now - started));
+    const left = Math.max(
+      0,
+      match.seconds_per_question * 1000 - (now - started),
+    );
     return Math.ceil(left / 1000);
   }, [now, match]);
 
-  // Auto-submit a timeout answer, then ask the server to advance.
+  // The server owns expiry. Keep retrying even after we answered or the opponent left.
+  // Include the expected index so late/duplicate requests cannot advance a later round.
   useEffect(() => {
-    // `now === 0` means the clock hasn't ticked yet; acting on it would misread the timer as expired.
-    if (now === 0 || match?.status !== 'active' || !match.question_started_at) return;
-    const started = new Date(match.question_started_at).getTime();
-    const limit = match.seconds_per_question * 1000;
-    const left = Math.max(0, limit - (now - started));
-
-    // Refs (not state) guard these one-shot side effects, so the effect never calls setState
-    // synchronously and can't cascade renders.
-    if (left === 0 && chosen === null && matchId && timedOutIndex.current !== currentIndex) {
-      timedOutIndex.current = currentIndex;
-      void submitAnswer(matchId, currentIndex, null)
-        .then((res) => setAnswerState({ index: currentIndex, chosen: null, result: res }))
-        .catch(() => {})
-        .finally(() => void advanceMatch(matchId).catch(() => {}));
-    }
-    // Both answered → advance promptly rather than waiting out the timer.
-    const answeredThisRound = answers.filter((a) => a.question_index === currentIndex).length;
-    if (answeredThisRound >= 2 && matchId && advancedIndex.current !== currentIndex) {
-      advancedIndex.current = currentIndex;
-      void advanceMatch(matchId).catch(() => {});
-    }
-  }, [match, now, chosen, currentIndex, answers, matchId]);
+    if (!matchId || match?.status !== 'active') return;
+    let inFlight = false;
+    let disposed = false;
+    const tick = async () => {
+      if (inFlight || disposed) return;
+      inFlight = true;
+      try {
+        await advanceMatch(matchId, currentIndex);
+        if (!disposed) await reload();
+      } catch {
+        /* polling will retry; keep the last usable match on screen */
+      } finally {
+        inFlight = false;
+      }
+    };
+    const timer = setInterval(() => void tick(), 2000);
+    return () => {
+      disposed = true;
+      clearInterval(timer);
+    };
+  }, [matchId, match?.status, currentIndex, reload]);
 
   // Record the outcome once, for XP and the win/loss record.
   useEffect(() => {
-    if (match?.status !== 'finished' || !user || resultRecorded.current || !matchId) return;
+    if (
+      match?.status !== 'finished' ||
+      !user ||
+      resultRecorded.current ||
+      !matchId
+    )
+      return;
     resultRecorded.current = true;
-    const outcome = match.is_tie ? 'tie' : match.winner_id === user.id ? 'win' : 'loss';
+    const outcome = match.is_tie
+      ? 'tie'
+      : match.winner_id === user.id
+        ? 'win'
+        : 'loss';
     void recordDuoResult({ matchId, outcome });
     void Haptics.notificationAsync(
       outcome === 'win'
@@ -160,7 +219,8 @@ export default function DuoMatchScreen() {
   }, [match, user, matchId, recordDuoResult]);
 
   const choose = async (index: number) => {
-    if (chosen !== null || !matchId) return;
+    if (chosen !== null || !matchId || submitting.current) return;
+    submitting.current = true;
     setAnswerState({ index: currentIndex, chosen: index, result: null });
     try {
       const res = await submitAnswer(matchId, currentIndex, index);
@@ -170,9 +230,17 @@ export default function DuoMatchScreen() {
           ? Haptics.NotificationFeedbackType.Success
           : Haptics.NotificationFeedbackType.Warning,
       ).catch(() => {});
-      await advanceMatch(matchId).catch(() => {});
+      await advanceMatch(matchId, currentIndex).catch(() => {});
+      await reload();
     } catch (e) {
-      Alert.alert('Answer not accepted', e instanceof Error ? e.message : 'Unknown error');
+      await reload();
+      setAnswerState((state) => (state?.index === currentIndex ? null : state));
+      Alert.alert(
+        'Could not confirm answer',
+        e instanceof Error ? e.message : 'Please retry.',
+      );
+    } finally {
+      submitting.current = false;
     }
   };
 
@@ -199,7 +267,13 @@ export default function DuoMatchScreen() {
   /* ------------------------------------------------------------------- loading */
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: t.colors.bg, justifyContent: 'center' }}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: t.colors.bg,
+          justifyContent: 'center',
+        }}
+      >
         <ActivityIndicator color={t.colors.brand} />
       </SafeAreaView>
     );
@@ -209,37 +283,60 @@ export default function DuoMatchScreen() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: t.colors.bg }}>
         <View style={{ padding: t.space.lg, gap: t.space.md }}>
-          <TIText variant="h3">Match not found</TIText>
-          <TIText variant="small" tone="muted">
-            The room may have expired or been closed.
+          <TIText variant="h3">
+            {connectionError ? 'Reconnecting…' : 'Match not found'}
           </TIText>
-          <Button label="Back to Quiz Duo" onPress={() => router.replace('/duo')} />
+          <TIText variant="small" tone="muted">
+            {connectionError ?? 'The room may have expired or been closed.'}
+          </TIText>
+          <Button
+            label="Back to Quiz Duo"
+            onPress={() => router.replace('/duo')}
+          />
         </View>
       </SafeAreaView>
     );
   }
 
-  const opponentOnline =
-    opponent ? now - new Date(opponent.last_seen_at).getTime() < PRESENCE_TIMEOUT_MS : false;
+  const opponentOnline = opponent
+    ? now - new Date(opponent.last_seen_at).getTime() < PRESENCE_TIMEOUT_MS
+    : false;
 
   /* ------------------------------------------------------------------- finished */
   if (match.status === 'finished' || match.status === 'abandoned') {
     const iWon = match.winner_id === user?.id;
-    const title = match.status === 'abandoned'
-      ? 'Match closed'
-      : match.is_tie
-        ? "It's a tie!"
-        : iWon
-          ? 'You win!'
-          : 'You lost this one';
+    const title =
+      match.status === 'abandoned'
+        ? 'Match closed'
+        : match.is_tie
+          ? "It's a tie!"
+          : iWon
+            ? 'You win!'
+            : 'You lost this one';
     const myAnswers = answers.filter((a) => a.user_id === user?.id);
     const correct = myAnswers.filter((a) => a.is_correct).length;
 
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: t.colors.bg }} edges={['left', 'right']}>
-        <ScrollView contentContainerStyle={{ padding: t.space.lg, gap: t.space.lg }}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: t.colors.bg }}
+        edges={['left', 'right']}
+      >
+        <ScrollView
+          contentContainerStyle={{ padding: t.space.lg, gap: t.space.lg }}
+        >
           <Card style={{ alignItems: 'center', gap: t.space.sm }}>
-            <AppIcon size={52} name={match.status === 'abandoned' ? 'exit-outline' : match.is_tie ? 'people-outline' : iWon ? 'trophy-outline' : 'fitness-outline'} />
+            <AppIcon
+              size={52}
+              name={
+                match.status === 'abandoned'
+                  ? 'exit-outline'
+                  : match.is_tie
+                    ? 'people-outline'
+                    : iWon
+                      ? 'trophy-outline'
+                      : 'fitness-outline'
+              }
+            />
             <TIText variant="h1" center>
               {title}
             </TIText>
@@ -251,7 +348,10 @@ export default function DuoMatchScreen() {
           </Card>
 
           <View style={{ flexDirection: 'row', gap: t.space.md }}>
-            <StatTile label={me?.display_name ?? 'You'} value={`${me?.score ?? 0}`} />
+            <StatTile
+              label={me?.display_name ?? 'You'}
+              value={`${me?.score ?? 0}`}
+            />
             <StatTile
               label={opponent?.display_name ?? 'Opponent'}
               value={`${opponent?.score ?? 0}`}
@@ -275,18 +375,25 @@ export default function DuoMatchScreen() {
 
           {answers.length ? (
             <Card style={{ gap: t.space.md }}>
-              <Text style={{ ...t.type.overline, color: t.colors.muted }}>ANSWER REVIEW</Text>
+              <Text style={{ ...t.type.overline, color: t.colors.muted }}>
+                ANSWER REVIEW
+              </Text>
               {questionIds.map((qid, i) => {
                 const q = content.questions.find((x) => x.id === qid);
                 if (!q) return null;
-                const mine = answers.find((a) => a.user_id === user?.id && a.question_index === i);
+                const mine = answers.find(
+                  (a) => a.user_id === user?.id && a.question_index === i,
+                );
                 if (!mine) return null;
                 return (
                   <View key={qid} style={{ gap: 3 }}>
                     <TIText variant="bodyStrong">
                       {i + 1}. {q.prompt}
                     </TIText>
-                    <TIText variant="small" tone={mine.is_correct ? 'success' : 'danger'}>
+                    <TIText
+                      variant="small"
+                      tone={mine.is_correct ? 'success' : 'danger'}
+                    >
                       {mine.is_correct
                         ? `✓ +${mine.awarded_points} pts`
                         : mine.chosen_index === null
@@ -294,7 +401,8 @@ export default function DuoMatchScreen() {
                           : `✕ You chose ${LETTERS[mine.chosen_index]}`}
                     </TIText>
                     <TIText variant="caption" tone="muted">
-                      Answer: {LETTERS[q.answerIndex]}) {q.options[q.answerIndex]} — {q.explanation}
+                      Answer: {LETTERS[q.answerIndex]}){' '}
+                      {q.options[q.answerIndex]} — {q.explanation}
                     </TIText>
                   </View>
                 );
@@ -303,7 +411,12 @@ export default function DuoMatchScreen() {
           ) : null}
 
           <View style={{ gap: t.space.sm }}>
-            <Button label="Rematch" variant="accent" onPress={() => router.replace('/duo')} fullWidth />
+            <Button
+              label="Rematch"
+              variant="accent"
+              onPress={() => router.replace('/duo')}
+              fullWidth
+            />
             <Button
               label="Back to quizzes"
               variant="outline"
@@ -320,8 +433,13 @@ export default function DuoMatchScreen() {
   if (match.status === 'waiting' || match.status === 'ready') {
     const bothHere = participants.length === 2;
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: t.colors.bg }} edges={['left', 'right']}>
-        <ScrollView contentContainerStyle={{ padding: t.space.lg, gap: t.space.lg }}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: t.colors.bg }}
+        edges={['left', 'right']}
+      >
+        <ScrollView
+          contentContainerStyle={{ padding: t.space.lg, gap: t.space.lg }}
+        >
           <Card style={{ alignItems: 'center', gap: t.space.md }}>
             <TIText variant="overline" tone="muted">
               ROOM CODE
@@ -355,22 +473,45 @@ export default function DuoMatchScreen() {
           </Card>
 
           <Card style={{ gap: t.space.md }}>
-            <Text style={{ ...t.type.overline, color: t.colors.muted }}>PLAYERS</Text>
+            <Text style={{ ...t.type.overline, color: t.colors.muted }}>
+              PLAYERS
+            </Text>
             {participants.map((p) => (
               <View
                 key={p.user_id}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.sm }}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: t.space.sm,
+                }}
               >
-                <AppIcon size={18} name={p.role === 'host' ? 'ribbon-outline' : 'game-controller-outline'} />
+                <AppIcon
+                  size={18}
+                  name={
+                    p.role === 'host'
+                      ? 'ribbon-outline'
+                      : 'game-controller-outline'
+                  }
+                />
                 <TIText variant="bodyStrong" style={{ flex: 1 }}>
                   {p.display_name}
                   {p.user_id === user?.id ? ' (you)' : ''}
                 </TIText>
-                {p.ready ? <Pill label="Ready" tone="success" /> : <Pill label="Waiting" tone="muted" />}
+                {p.ready ? (
+                  <Pill label="Ready" tone="success" />
+                ) : (
+                  <Pill label="Waiting" tone="muted" />
+                )}
               </View>
             ))}
             {!bothHere ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.sm }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: t.space.sm,
+                }}
+              >
                 <ActivityIndicator color={t.colors.brand} />
                 <TIText variant="small" tone="muted">
                   Waiting for an opponent to join…
@@ -380,15 +521,27 @@ export default function DuoMatchScreen() {
           </Card>
 
           <Button
-            label={me?.ready ? 'Waiting for the other player…' : "I'm ready"
+            label={me?.ready ? 'Waiting for the other player…' : "I'm ready"}
+            onPress={() =>
+              matchId &&
+              void setReady(matchId)
+                .then(() => reload())
+                .catch((e) =>
+                  Alert.alert(
+                    'Could not set ready',
+                    e instanceof Error ? e.message : 'Unknown error',
+                  ),
+                )
             }
-            onPress={() => matchId && void setReady(matchId).catch((e) =>
-              Alert.alert('Could not set ready', e instanceof Error ? e.message : 'Unknown error'),
-            )}
             disabled={!bothHere || Boolean(me?.ready)}
             fullWidth
           />
-          <Button label="Leave room" variant="outline" onPress={leave} fullWidth />
+          <Button
+            label="Leave room"
+            variant="outline"
+            onPress={leave}
+            fullWidth
+          />
           <TIText variant="caption" tone="muted" center>
             Both players get the same questions and the same time limit.
           </TIText>
@@ -408,11 +561,19 @@ export default function DuoMatchScreen() {
   const correctIndex = result?.correctIndex ?? question?.answerIndex ?? -1;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: t.colors.bg }} edges={['left', 'right']}>
-      <ScrollView contentContainerStyle={{ padding: t.space.lg, gap: t.space.lg }}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: t.colors.bg }}
+      edges={['left', 'right']}
+    >
+      <ScrollView
+        contentContainerStyle={{ padding: t.space.lg, gap: t.space.lg }}
+      >
         {/* scoreboard */}
         <View style={{ flexDirection: 'row', gap: t.space.md }}>
-          <StatTile label={`${me?.display_name ?? 'You'}`} value={`${me?.score ?? 0}`} />
+          <StatTile
+            label={`${me?.display_name ?? 'You'}`}
+            value={`${me?.score ?? 0}`}
+          />
           <StatTile
             label={`${opponent?.display_name ?? 'Opponent'}${opponentOnline ? '' : ' (offline)'}`}
             value={`${opponent?.score ?? 0}`}
@@ -426,11 +587,16 @@ export default function DuoMatchScreen() {
         ) : null}
 
         <View style={{ gap: 6 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <View
+            style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+          >
             <TIText variant="caption" tone="muted">
               Question {currentIndex + 1} of {questionIds.length}
             </TIText>
-            <TIText variant="caption" tone={remaining <= 5 ? 'danger' : 'muted'}>
+            <TIText
+              variant="caption"
+              tone={remaining <= 5 ? 'danger' : 'muted'}
+            >
               {remaining}s
             </TIText>
           </View>
@@ -448,10 +614,18 @@ export default function DuoMatchScreen() {
           </Card>
         ) : (
           <>
+            <>
+              {connectionError ? (
+                <TIText variant="small" tone="danger">
+                  {connectionError}
+                </TIText>
+              ) : null}
+            </>
             <TIText variant="h2">{question.prompt}</TIText>
             <View style={{ gap: t.space.sm }}>
               {question.options.map((option, i) => {
-                const isChosen = chosen === i || myAnswerThisRound?.chosen_index === i;
+                const isChosen =
+                  chosen === i || myAnswerThisRound?.chosen_index === i;
                 const isAnswer = revealed && i === correctIndex;
                 const bg = revealed
                   ? isAnswer
@@ -471,7 +645,9 @@ export default function DuoMatchScreen() {
                   <Pressable
                     key={i}
                     accessibilityRole="button"
-                    accessibilityState={{ disabled: revealed || chosen !== null }}
+                    accessibilityState={{
+                      disabled: revealed || chosen !== null,
+                    }}
                     disabled={revealed || chosen !== null}
                     onPress={() => void choose(i)}
                     style={{
@@ -496,11 +672,20 @@ export default function DuoMatchScreen() {
                         justifyContent: 'center',
                       }}
                     >
-                      <Text style={{ fontWeight: '800', color: t.colors.brandDark }}>
+                      <Text
+                        style={{ fontWeight: '800', color: t.colors.brandDark }}
+                      >
                         {LETTERS[i]}
                       </Text>
                     </View>
-                    <Text style={{ flex: 1, fontSize: 15, lineHeight: 22, color: t.colors.ink }}>
+                    <Text
+                      style={{
+                        flex: 1,
+                        fontSize: 15,
+                        lineHeight: 22,
+                        color: t.colors.ink,
+                      }}
+                    >
                       {option}
                     </Text>
                   </Pressable>
@@ -513,14 +698,21 @@ export default function DuoMatchScreen() {
         {result ? (
           <Card
             style={{
-              backgroundColor: result.isCorrect ? t.colors.successBg : t.colors.dangerBg,
-              borderColor: result.isCorrect ? t.colors.success : t.colors.danger,
+              backgroundColor: result.isCorrect
+                ? t.colors.successBg
+                : t.colors.dangerBg,
+              borderColor: result.isCorrect
+                ? t.colors.success
+                : t.colors.danger,
               gap: 4,
             }}
           >
-            <TIText variant="bodyStrong" tone={result.isCorrect ? 'success' : 'danger'}>
+            <TIText
+              variant="bodyStrong"
+              tone={result.isCorrect ? 'success' : 'danger'}
+            >
               {result.timedOut
-                ? '⏱ Out of time'
+                ? 'Out of time'
                 : result.isCorrect
                   ? `✓ Correct · +${result.awardedPoints} pts`
                   : '✕ Not quite'}
@@ -530,7 +722,14 @@ export default function DuoMatchScreen() {
         ) : null}
 
         {revealed ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.sm, justifyContent: 'center' }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: t.space.sm,
+              justifyContent: 'center',
+            }}
+          >
             {opponentAnswered ? (
               <TIText variant="caption" tone="muted">
                 Both answered — next question coming up…
@@ -546,7 +745,12 @@ export default function DuoMatchScreen() {
           </View>
         ) : null}
 
-        <Button label="Forfeit match" variant="outline" onPress={leave} fullWidth />
+        <Button
+          label="Forfeit match"
+          variant="outline"
+          onPress={leave}
+          fullWidth
+        />
       </ScrollView>
     </SafeAreaView>
   );
