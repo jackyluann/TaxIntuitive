@@ -1,5 +1,6 @@
+import { Alert } from '@/lib/alert';
 import React, { useState } from 'react';
-import { Alert, Platform, View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Button, Card, Divider, Screen, TIText } from '@/components/ui';
@@ -30,7 +31,7 @@ export default function SignInScreen() {
     try {
       await fn();
       if (done) Alert.alert(done);
-      else router.back();
+      else router.replace('/');
     } catch (e) {
       Alert.alert('Sign-in failed', e instanceof Error ? e.message : 'Unknown error');
     } finally {
@@ -109,7 +110,7 @@ export default function SignInScreen() {
         />
       </Card>
 
-      <View style={{ gap: t.space.sm }}>
+      {(process.env.EXPO_PUBLIC_GOOGLE_AUTH_ENABLED === 'true' || (Platform.OS === 'ios' && appleAvailable)) ? <View style={{ gap: t.space.sm }}>
         <Divider />
         <TIText variant="caption" tone="muted" center>
           or continue with
@@ -127,14 +128,14 @@ export default function SignInScreen() {
             onPress={() => void run('apple', signInWithApple)}
           />
         ) : null}
-        <Button
+        {process.env.EXPO_PUBLIC_GOOGLE_AUTH_ENABLED === 'true' ? <Button
           label="Continue with Google"
           variant="outline"
           loading={busy === 'google'}
           onPress={() => void run('google', signInWithGoogle)}
           fullWidth
-        />
-      </View>
+        /> : null}
+      </View> : null}
 
       <Button
         label="New here? Create an account"

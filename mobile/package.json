@@ -65,7 +65,8 @@
     "backend:start": "npx --yes supabase@2.121.0 start --workdir ..",
     "backend:serve": "npx --yes supabase@2.121.0 functions serve --workdir ..",
     "backend:configure": "node scripts/configure-supabase.mjs",
-    "test:duo": "node scripts/test-duo-integration.mjs"
+    "test:duo": "node scripts/test-duo-integration.mjs",
+    "build:web": "expo export --platform web --output-dir dist && node scripts/prepare-web.mjs"
   },
   "private": true,
   "jest": {

@@ -1,5 +1,6 @@
+import { Alert } from '@/lib/alert';
 import React from 'react';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/auth';
 import { useProgress } from '@/providers/progress';

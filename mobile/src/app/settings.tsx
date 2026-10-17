@@ -1,5 +1,6 @@
+import { Alert } from '@/lib/alert';
 import React, { useState } from 'react';
-import { Alert, Switch, View } from 'react-native';
+import { Switch, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import { CONTENT_VERSION } from '@/content';

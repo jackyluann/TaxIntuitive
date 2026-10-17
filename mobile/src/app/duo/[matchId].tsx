@@ -1,3 +1,4 @@
+import { Alert } from '@/lib/alert';
 import { AppIcon } from '@/components/AppIcon';
 import React, {
   useCallback,
@@ -8,7 +9,6 @@ import React, {
 } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   Share,

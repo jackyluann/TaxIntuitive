@@ -36,7 +36,7 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured
         autoRefreshToken: !isStaticRender,
         persistSession: !isStaticRender,
         // RN has no URL bar to parse a session out of.
-        detectSessionInUrl: false,
+        detectSessionInUrl: Platform.OS === 'web' && !isStaticRender,
       },
     })
   : null;

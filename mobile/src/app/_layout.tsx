@@ -59,6 +59,7 @@ function RootStack() {
         <Stack.Screen name="workshops" options={{ title: 'Workshops' }} />
         <Stack.Screen name="about" options={{ title: 'About' }} />
         <Stack.Screen name="faq" options={{ title: 'FAQ' }} />
+        <Stack.Screen name="reset-password" options={{ title: 'Reset password' }} />
         <Stack.Screen name="settings" options={{ title: 'Settings' }} />
         <Stack.Screen name="privacy" options={{ title: 'Privacy Policy' }} />
         <Stack.Screen name="disclaimer" options={{ title: 'Educational Disclaimer' }} />

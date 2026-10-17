@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(data.session ?? null);
         setLoading(false);
       }
-    });
+    }).catch(() => { if (active) setLoading(false); });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next);
@@ -70,7 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await client.auth.signUp({
         email: email.trim(),
         password,
-        options: { data: { display_name: displayName.trim() } },
+        options: {
+          data: { display_name: displayName.trim() },
+          emailRedirectTo: AuthSession.makeRedirectUri({ scheme: 'taxintuitive', path: 'auth/sign-in' }),
+        },
       });
       if (error) throw new Error(error.message);
     },

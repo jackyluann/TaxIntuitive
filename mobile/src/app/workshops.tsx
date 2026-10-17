@@ -1,5 +1,6 @@
+import { Alert } from '@/lib/alert';
 import React, { useState } from 'react';
-import { Alert, Linking, Text, View } from 'react-native';
+import { Linking, Text, View } from 'react-native';
 import * as Calendar from 'expo-calendar';
 import { contact } from '@/content';
 import { Button, Card, EmptyState, Pill, Screen, SectionTitle, TIText } from '@/components/ui';

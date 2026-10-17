@@ -1,5 +1,6 @@
+import { Alert } from '@/lib/alert';
 import React, { useState } from 'react';
-import { Alert, Platform, View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Button, Card, Divider, Screen, TIText } from '@/components/ui';
@@ -29,7 +30,7 @@ export default function SignUpScreen() {
     try {
       await fn();
       if (done) Alert.alert('Almost there', done);
-      router.back();
+      if (!done) router.replace('/');
     } catch (e) {
       Alert.alert('Could not create account', e instanceof Error ? e.message : 'Unknown error');
     } finally {
@@ -82,6 +83,9 @@ export default function SignUpScreen() {
             </TIText>
           </Card>
         ) : null}
+        {Platform.OS === 'web' && process.env.EXPO_PUBLIC_EMAIL_SIGNUP_ENABLED !== 'true' ? (
+          <TIText variant="small" tone="muted">Public account registration is coming soon. Explore lessons, practice quizzes and the simulator as a guest. Quiz Duo currently requires a test account.</TIText>
+        ) : null}
         <Field
           label="Display name"
           value={name}
@@ -111,10 +115,10 @@ export default function SignUpScreen() {
           autoComplete="new-password"
           error={errors.password}
         />
-        <Button label="Create account" onPress={submit} loading={busy === 'email'} fullWidth />
+        <Button label="Create account" disabled={Platform.OS === 'web' && process.env.EXPO_PUBLIC_EMAIL_SIGNUP_ENABLED !== 'true'} onPress={submit} loading={busy === 'email'} fullWidth />
       </Card>
 
-      <View style={{ gap: t.space.sm }}>
+      {(process.env.EXPO_PUBLIC_GOOGLE_AUTH_ENABLED === 'true' || (Platform.OS === 'ios' && appleAvailable)) ? <View style={{ gap: t.space.sm }}>
         <Divider />
         <TIText variant="caption" tone="muted" center>
           or sign up with
@@ -132,14 +136,14 @@ export default function SignUpScreen() {
             onPress={() => void run('apple', signInWithApple)}
           />
         ) : null}
-        <Button
+        {process.env.EXPO_PUBLIC_GOOGLE_AUTH_ENABLED === 'true' ? <Button
           label="Continue with Google"
           variant="outline"
           loading={busy === 'google'}
           onPress={() => void run('google', signInWithGoogle)}
           fullWidth
-        />
-      </View>
+        /> : null}
+      </View> : null}
 
       <Button
         label="Already have an account? Sign in"

@@ -1,6 +1,7 @@
+import { Alert } from '@/lib/alert';
 import { AppIcon } from '@/components/AppIcon';
 import React, { useState } from 'react';
-import { Alert, Share, View } from 'react-native';
+import { Share, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { Button, Card, Pill, Screen, SectionTitle, StatTile, TIText } from '@/components/ui';

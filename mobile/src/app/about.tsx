@@ -1,6 +1,7 @@
+import { Alert } from '@/lib/alert';
 import { AppIcon } from '@/components/AppIcon';
 import React, { useState } from 'react';
-import { Alert, Linking, Text, View } from 'react-native';
+import { Linking, Text, View } from 'react-native';
 import { contact, DISCLAIMER } from '@/content';
 import { Button, Card, DisclaimerNote, Pill, Screen, SectionTitle, TIText } from '@/components/ui';
 import { Field } from '@/components/Field';
