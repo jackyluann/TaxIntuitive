@@ -1,3 +1,4 @@
+import { AppIcon } from '@/components/AppIcon';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -165,7 +166,7 @@ export function Button({
       style={({ pressed }) => [
         {
           backgroundColor: p.bg,
-          borderRadius: t.radius.pill,
+          borderRadius: t.radius.md,
           borderWidth: p.border ? 1.5 : 0,
           borderColor: p.border,
           paddingVertical: 14,
@@ -305,7 +306,7 @@ export function StatTile({
 }) {
   const t = useTheme();
   const color =
-    tone === 'brand' ? t.colors.brandDark : tone === 'accent' ? t.colors.accent : t.colors.ink;
+    tone === 'brand' ? t.colors.brandDark : tone === 'accent' ? t.colors.warningInk : t.colors.ink;
   return (
     <View
       style={[
@@ -339,12 +340,12 @@ export function StatTile({
 /* ------------------------------------------------------------------- empty state */
 
 export function EmptyState({
-  emoji,
+  icon,
   title,
   body,
   action,
 }: {
-  emoji: string;
+  icon: string;
   title: string;
   body: string;
   action?: React.ReactNode;
@@ -352,7 +353,7 @@ export function EmptyState({
   const t = useTheme();
   return (
     <Card style={{ alignItems: 'center', gap: t.space.sm, paddingVertical: t.space.xxl }}>
-      <Text style={{ fontSize: 40 }}>{emoji}</Text>
+      <AppIcon size={40} name={icon} />
       <TIText variant="h3" center>
         {title}
       </TIText>
@@ -386,13 +387,13 @@ export function DisclaimerNote({ text }: { text: string }) {
 /* ------------------------------------------------------------------------- rows */
 
 export function ListRow({
-  emoji,
+  icon,
   title,
   subtitle,
   onPress,
   right,
 }: {
-  emoji?: string;
+  icon?: string;
   title: string;
   subtitle?: string;
   onPress?: () => void;
@@ -407,12 +408,13 @@ export function ListRow({
         flexDirection: 'row',
         alignItems: 'center',
         gap: t.space.md,
+        minHeight: 56,
         paddingVertical: t.space.md,
         paddingHorizontal: t.space.lg,
         backgroundColor: pressed ? t.colors.subtle : 'transparent',
       })}
     >
-      {emoji ? <Text style={{ fontSize: 20 }}>{emoji}</Text> : null}
+      {icon ? <AppIcon size={20} name={icon} /> : null}
       <View style={{ flex: 1 }}>
         <TIText variant="bodyStrong">{title}</TIText>
         {subtitle ? (

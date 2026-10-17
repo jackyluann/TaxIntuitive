@@ -1,3 +1,4 @@
+import { AppIcon } from '@/components/AppIcon';
 import React, { useState } from 'react';
 import { Alert, Linking, Text, View } from 'react-native';
 import { contact, DISCLAIMER } from '@/content';
@@ -108,13 +109,13 @@ export default function AboutScreen() {
       <SectionTitle>What we&apos;re building</SectionTitle>
       <Card style={{ gap: t.space.md }}>
         {[
-          ['🧠', 'Trivia & quizzes', 'Test your tax smarts with instant, plain-language explanations.'],
-          ['🎥', 'Expert videos', 'Real questions answered by a tax expert, no textbook.'],
-          ['🎮', 'Simulator', 'Survive your first year after high school, one money decision at a time.'],
-          ['📚', 'Guides & lessons', 'Short, jargon-free lessons on how taxes really work.'],
-        ].map(([emoji, title, body]) => (
+          ['bulb-outline', 'Trivia & quizzes', 'Test your tax smarts with instant, plain-language explanations.'],
+          ['videocam-outline', 'Expert videos', 'Real questions answered by a tax expert, no textbook.'],
+          ['game-controller-outline', 'Simulator', 'Survive your first year after high school, one money decision at a time.'],
+          ['library-outline', 'Guides & lessons', 'Short, jargon-free lessons on how taxes really work.'],
+        ].map(([icon, title, body]) => (
           <View key={title} style={{ flexDirection: 'row', gap: t.space.md }}>
-            <Text style={{ fontSize: 22 }}>{emoji}</Text>
+            <AppIcon size={22} name={icon} />
             <View style={{ flex: 1 }}>
               <TIText variant="bodyStrong">{title}</TIText>
               <TIText variant="caption" tone="muted">

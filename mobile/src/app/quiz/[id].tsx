@@ -125,14 +125,14 @@ export default function QuizScreen() {
     const pct = Math.round((score / questions.length) * 100);
     const verdict =
       pct === 100
-        ? { title: 'Perfect score! 🏆', body: "You're a certified tax whiz." }
+        ? { title: 'Perfect score!', body: "You're a certified tax whiz." }
         : pct >= 80
-          ? { title: 'Great job! 🎉', body: "You've really got the basics down." }
+          ? { title: 'Great job!', body: "You've really got the basics down." }
           : pct >= 60
-            ? { title: 'Nice work! 👍', body: "A solid foundation — a quick review and you'll ace it." }
+            ? { title: 'Nice work!', body: "A solid foundation — a quick review and you'll ace it." }
             : pct >= 40
-              ? { title: 'Good start! 🌱', body: 'Try the lessons below and give it another go.' }
-              : { title: 'Keep going! 💪', body: 'Everyone starts somewhere. Review and try again.' };
+              ? { title: 'Good start!', body: 'Try the lessons below and give it another go.' }
+              : { title: 'Keep going!', body: 'Everyone starts somewhere. Review and try again.' };
 
     const wrong = answers.filter((a) => !a.correct);
     const recommended = Array.from(

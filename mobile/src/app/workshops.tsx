@@ -108,7 +108,7 @@ export default function WorkshopsScreen() {
       <SectionTitle>Upcoming</SectionTitle>
       {upcoming.length === 0 ? (
         <EmptyState
-          emoji="🎓"
+          icon="school-outline"
           title="No workshops scheduled yet"
           body="New sessions are being planned. Request one for your school or organization below and you'll be first to know."
         />

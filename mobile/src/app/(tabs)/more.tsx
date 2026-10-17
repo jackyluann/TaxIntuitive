@@ -43,7 +43,7 @@ export default function MoreScreen() {
               />
               {!authAvailable ? (
                 <TIText variant="caption" tone="muted">
-                  Accounts need Supabase configured. See README → Setup.
+                  Accounts are not available yet. You can keep learning as a guest.
                 </TIText>
               ) : null}
             </View>
@@ -71,38 +71,40 @@ export default function MoreScreen() {
         </View>
       </Card>
 
-      <SectionTitle>Tools</SectionTitle>
+      <SectionTitle>Explore</SectionTitle>
       <Card padded={false}>
+        <ListRow icon="play-circle-outline" title="Expert videos" onPress={() => router.push('/videos')} />
+        <Divider />
         <ListRow
-          emoji="🎮"
+          icon="game-controller-outline"
           title="Tax Simulator"
           subtitle="Survive your first year"
           onPress={() => router.push('/simulator')}
         />
         <Divider />
         <ListRow
-          emoji="🏅"
+          icon="ribbon-outline"
           title="XP Tracker"
           subtitle="Progress by track"
           onPress={() => router.push('/xp')}
         />
         <Divider />
         <ListRow
-          emoji="🏆"
+          icon="trophy-outline"
           title="Achievements"
           subtitle="Badges you've earned"
           onPress={() => router.push('/achievements')}
         />
         <Divider />
         <ListRow
-          emoji="🤝"
+          icon="people-outline"
           title="Quiz Duo"
           subtitle="Play against a friend"
           onPress={() => router.push('/duo')}
         />
         <Divider />
         <ListRow
-          emoji="📖"
+          icon="book-outline"
           title="Tax Glossary"
           onPress={() => router.push('/glossary')}
         />
@@ -110,21 +112,21 @@ export default function MoreScreen() {
 
       <SectionTitle>TaxIntuitive</SectionTitle>
       <Card padded={false}>
-        <ListRow emoji="🎓" title="Workshops" onPress={() => router.push('/workshops')} />
+        <ListRow icon="school-outline" title="Workshops" onPress={() => router.push('/workshops')} />
         <Divider />
-        <ListRow emoji="💬" title="About & contact" onPress={() => router.push('/about')} />
+        <ListRow icon="chatbubble-outline" title="About & contact" onPress={() => router.push('/about')} />
         <Divider />
-        <ListRow emoji="❓" title="FAQ" onPress={() => router.push('/faq')} />
+        <ListRow icon="help-circle-outline" title="FAQ" onPress={() => router.push('/faq')} />
       </Card>
 
       <SectionTitle>Settings & legal</SectionTitle>
       <Card padded={false}>
-        <ListRow emoji="⚙️" title="Settings" onPress={() => router.push('/settings')} />
+        <ListRow icon="settings-outline" title="Settings" onPress={() => router.push('/settings')} />
         <Divider />
-        <ListRow emoji="🔒" title="Privacy Policy" onPress={() => router.push('/privacy')} />
+        <ListRow icon="lock-closed-outline" title="Privacy Policy" onPress={() => router.push('/privacy')} />
         <Divider />
         <ListRow
-          emoji="⚠️"
+          icon="warning-outline"
           title="Educational Disclaimer"
           onPress={() => router.push('/disclaimer')}
         />

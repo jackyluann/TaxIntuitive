@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext, useMemo, useSyncExternalStore } from 'react';
 import { useColorScheme } from 'react-native';
 import {
   darkColors,
@@ -19,6 +19,10 @@ export interface Theme {
   isDark: boolean;
 }
 
+const subscribeHydration = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
+
 const ThemeContext = createContext<Theme | null>(null);
 
 /**
@@ -27,7 +31,9 @@ const ThemeContext = createContext<Theme | null>(null);
  */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
+  // Match the static HTML on hydration, then apply the device preference.
+  const hydrated = useSyncExternalStore(subscribeHydration, clientSnapshot, serverSnapshot);
+  const isDark = hydrated && scheme === 'dark';
   const value = useMemo<Theme>(() => {
     const colors = isDark ? darkColors : lightColors;
     return { colors, space, radius, type, shadow: shadow(colors.shadow), isDark };

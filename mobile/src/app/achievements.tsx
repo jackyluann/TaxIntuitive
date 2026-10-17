@@ -1,3 +1,4 @@
+import { AppIcon } from '@/components/AppIcon';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { Card, ProgressBar, Screen, SectionTitle, TIText } from '@/components/ui';
@@ -31,7 +32,7 @@ export default function AchievementsScreen() {
           {earned.map(({ def }) => (
             <Card key={def.id}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.md }}>
-                <Text style={{ fontSize: 30 }}>{def.emoji}</Text>
+                <AppIcon size={30} name={def.emoji} />
                 <View style={{ flex: 1 }}>
                   <TIText variant="bodyStrong">{def.title}</TIText>
                   <TIText variant="caption" tone="muted">
@@ -60,7 +61,7 @@ export default function AchievementsScreen() {
       {locked.map(({ def, progress }) => (
         <Card key={def.id} style={{ opacity: 0.85 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.md }}>
-            <Text style={{ fontSize: 30, opacity: 0.4 }}>{def.emoji}</Text>
+            <AppIcon size={30} name={def.emoji} />
             <View style={{ flex: 1, gap: 6 }}>
               <TIText variant="bodyStrong">{def.title}</TIText>
               <TIText variant="caption" tone="muted">

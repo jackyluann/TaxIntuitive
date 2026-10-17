@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme';
 
 /**
- * Five bottom tabs, as specified: Home, Learn, Quizzes, Videos, More.
+ * Four primary tabs: Home, Learn, Quizzes, More. Videos remain available from More.
  * Everything else (Simulator, XP, Achievements, Workshops, About, FAQ, Settings) lives under More
  * and is pushed with standard platform back navigation.
  */
@@ -32,35 +32,36 @@ export default function TabsLayout() {
         options={{
           title: 'Home',
           headerShown: false,
-          tabBarIcon: ({ color, size }) => <Ionicons name="home" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="learn"
         options={{
           title: 'Learn',
-          tabBarIcon: ({ color, size }) => <Ionicons name="book" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="book-outline" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="quizzes"
         options={{
           title: 'Quizzes',
-          tabBarIcon: ({ color, size }) => <Ionicons name="bulb" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="bulb-outline" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="videos"
         options={{
           title: 'Videos',
-          tabBarIcon: ({ color, size }) => <Ionicons name="play-circle" color={color} size={size} />,
+          href: null,
+          tabBarIcon: ({ color, size }) => <Ionicons name="play-circle-outline" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="more"
         options={{
           title: 'More',
-          tabBarIcon: ({ color, size }) => <Ionicons name="grid" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="grid-outline" color={color} size={size} />,
         }}
       />
     </Tabs>

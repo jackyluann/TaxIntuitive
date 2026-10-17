@@ -39,7 +39,7 @@ export default function GlossaryScreen() {
         }}
       />
       {terms.length === 0 ? (
-        <EmptyState emoji="📖" title="No matching terms" body="Try a different word." />
+        <EmptyState icon="book-outline" title="No matching terms" body="Try a different word." />
       ) : (
         terms.map((g) => (
           <Card key={g.term} style={{ gap: 4 }}>

@@ -1,5 +1,6 @@
+import { AppIcon } from '@/components/AppIcon';
 import React, { useMemo } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useContent } from '@/providers/content';
 import { useProgress } from '@/providers/progress';
@@ -53,7 +54,7 @@ export default function QuizzesScreen() {
           <SectionTitle>This week</SectionTitle>
           <Card onPress={() => router.push(`/quiz/${weekly.id}`)}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.md }}>
-              <Text style={{ fontSize: 32 }}>{weekly.emoji}</Text>
+              <AppIcon size={32} name={weekly.emoji} />
               <View style={{ flex: 1, gap: 2 }}>
                 <TIText variant="h3">{weekly.title}</TIText>
                 <TIText variant="small" tone="muted">
@@ -68,7 +69,7 @@ export default function QuizzesScreen() {
       <SectionTitle>Quiz Duo</SectionTitle>
       <Card style={{ gap: t.space.sm }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.md }}>
-          <Text style={{ fontSize: 30 }}>🤝</Text>
+          <AppIcon size={30} name="people-outline" />
           <View style={{ flex: 1 }}>
             <TIText variant="h3">Challenge a friend</TIText>
             <TIText variant="small" tone="muted">
@@ -92,7 +93,7 @@ export default function QuizzesScreen() {
         return (
           <Card key={quiz.id} onPress={() => router.push(`/quiz/${quiz.id}`)}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.md }}>
-              <Text style={{ fontSize: 26 }}>{quiz.emoji}</Text>
+              <AppIcon size={26} name={quiz.emoji} />
               <View style={{ flex: 1, gap: 3 }}>
                 <TIText variant="bodyStrong">{quiz.title}</TIText>
                 <TIText variant="caption" tone="muted">
@@ -114,7 +115,7 @@ export default function QuizzesScreen() {
           {challenges.map((quiz) => (
             <Card key={quiz.id} onPress={() => router.push(`/quiz/${quiz.id}`)}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.md }}>
-                <Text style={{ fontSize: 26 }}>{quiz.emoji}</Text>
+                <AppIcon size={26} name={quiz.emoji} />
                 <View style={{ flex: 1, gap: 3 }}>
                   <TIText variant="bodyStrong">{quiz.title}</TIText>
                   <TIText variant="caption" tone="muted">

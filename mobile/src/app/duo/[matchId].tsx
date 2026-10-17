@@ -1,3 +1,4 @@
+import { AppIcon } from '@/components/AppIcon';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -229,7 +230,7 @@ export default function DuoMatchScreen() {
       : match.is_tie
         ? "It's a tie!"
         : iWon
-          ? 'You win! 🏆'
+          ? 'You win!'
           : 'You lost this one';
     const myAnswers = answers.filter((a) => a.user_id === user?.id);
     const correct = myAnswers.filter((a) => a.is_correct).length;
@@ -238,9 +239,7 @@ export default function DuoMatchScreen() {
       <SafeAreaView style={{ flex: 1, backgroundColor: t.colors.bg }} edges={['left', 'right']}>
         <ScrollView contentContainerStyle={{ padding: t.space.lg, gap: t.space.lg }}>
           <Card style={{ alignItems: 'center', gap: t.space.sm }}>
-            <Text style={{ fontSize: 52 }}>
-              {match.status === 'abandoned' ? '🚪' : match.is_tie ? '🤝' : iWon ? '🏆' : '💪'}
-            </Text>
+            <AppIcon size={52} name={match.status === 'abandoned' ? 'exit-outline' : match.is_tie ? 'people-outline' : iWon ? 'trophy-outline' : 'fitness-outline'} />
             <TIText variant="h1" center>
               {title}
             </TIText>
@@ -362,7 +361,7 @@ export default function DuoMatchScreen() {
                 key={p.user_id}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.sm }}
               >
-                <Text style={{ fontSize: 18 }}>{p.role === 'host' ? '👑' : '🎮'}</Text>
+                <AppIcon size={18} name={p.role === 'host' ? 'ribbon-outline' : 'game-controller-outline'} />
                 <TIText variant="bodyStrong" style={{ flex: 1 }}>
                   {p.display_name}
                   {p.user_id === user?.id ? ' (you)' : ''}
@@ -415,7 +414,7 @@ export default function DuoMatchScreen() {
         <View style={{ flexDirection: 'row', gap: t.space.md }}>
           <StatTile label={`${me?.display_name ?? 'You'}`} value={`${me?.score ?? 0}`} />
           <StatTile
-            label={`${opponent?.display_name ?? 'Opponent'}${opponentOnline ? '' : ' ⚠️'}`}
+            label={`${opponent?.display_name ?? 'Opponent'}${opponentOnline ? '' : ' (offline)'}`}
             value={`${opponent?.score ?? 0}`}
             tone="ink"
           />

@@ -1,3 +1,4 @@
+import { AppIcon } from '@/components/AppIcon';
 import React, { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -108,7 +109,7 @@ export default function LearnScreen() {
       >
         <Card>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.md }}>
-            <Text style={{ fontSize: 24 }}>📖</Text>
+            <AppIcon size={24} name="book-outline" />
             <View style={{ flex: 1 }}>
               <TIText variant="bodyStrong">Tax Glossary</TIText>
               <TIText variant="caption" tone="muted">
@@ -122,7 +123,7 @@ export default function LearnScreen() {
 
       {byCategory.length === 0 ? (
         <EmptyState
-          emoji="🔍"
+          icon="search-outline"
           title="Nothing here yet"
           body={
             filter === 'bookmarked'
@@ -133,7 +134,7 @@ export default function LearnScreen() {
       ) : (
         byCategory.map(({ category, items }) => (
           <View key={category.id} style={{ gap: t.space.md }}>
-            <SectionTitle>{`${category.emoji}  ${category.title}`}</SectionTitle>
+            <SectionTitle>{category.title}</SectionTitle>
             {items.map((lesson) => (
               <LessonRow
                 key={lesson.id}
@@ -168,7 +169,7 @@ function LessonRow({
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.sm }}>
           {lesson.kind === 'guide' ? <Pill label="Guide" tone="accent" /> : null}
           {completed ? <Pill label="✓ Done" tone="success" /> : null}
-          {bookmarked ? <Text style={{ fontSize: 14 }}>🔖</Text> : null}
+          {bookmarked ? <AppIcon size={14} name="bookmark" /> : null}
         </View>
         <TIText variant="h3">{lesson.title}</TIText>
         <TIText variant="small" tone="muted">

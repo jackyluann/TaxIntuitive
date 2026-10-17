@@ -1,3 +1,4 @@
+import { AppIcon } from '@/components/AppIcon';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
@@ -61,7 +62,7 @@ export default function LessonScreen() {
       >
         <View style={{ gap: t.space.sm }}>
           <View style={{ flexDirection: 'row', gap: t.space.sm, flexWrap: 'wrap' }}>
-            {category ? <Pill label={`${category.emoji} ${category.title}`} /> : null}
+            {category ? <Pill label={category.title} /> : null}
             {lesson.kind === 'guide' ? <Pill label="Guide" tone="accent" /> : null}
             {state?.completed ? <Pill label="✓ Completed" tone="success" /> : null}
           </View>
@@ -78,7 +79,7 @@ export default function LessonScreen() {
               accessibilityLabel={state?.bookmarked ? 'Remove bookmark' : 'Bookmark this lesson'}
               onPress={() => void toggleBookmark(lesson.id)}
             >
-              <Text style={{ fontSize: 18 }}>{state?.bookmarked ? '🔖' : '📑'}</Text>
+              <AppIcon size={18} name={state?.bookmarked ? 'bookmark' : 'bookmark-outline'} />
             </Pressable>
           </View>
         </View>

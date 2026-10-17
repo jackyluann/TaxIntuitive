@@ -1,5 +1,6 @@
+import { AppIcon } from '@/components/AppIcon';
 import React, { useState } from 'react';
-import { Alert, Share, Text, View } from 'react-native';
+import { Alert, Share, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { Button, Card, Pill, Screen, SectionTitle, StatTile, TIText } from '@/components/ui';
@@ -25,7 +26,7 @@ export default function DuoLobbyScreen() {
     return (
       <Screen>
         <Card style={{ gap: t.space.md, alignItems: 'center' }}>
-          <Text style={{ fontSize: 44 }}>🤝</Text>
+          <AppIcon size={44} name="people-outline" />
           <TIText variant="h2" center>
             Quiz Duo needs an account
           </TIText>
@@ -95,7 +96,7 @@ export default function DuoLobbyScreen() {
   return (
     <Screen>
       <Card style={{ gap: t.space.sm }}>
-        <TIText variant="h2">Quiz Duo 🤝</TIText>
+        <TIText variant="h2">Quiz Duo </TIText>
         <TIText variant="small" tone="muted">
           Two players, the same questions, live scoring. Answer fast — speed and streaks earn bonus
           points.

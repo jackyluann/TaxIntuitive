@@ -1,5 +1,6 @@
+import { AppIcon } from '@/components/AppIcon';
 import React from 'react';
-import { Linking, Text } from 'react-native';
+import { Linking } from 'react-native';
 import { CRA_URL, DISCLAIMER } from '@/content';
 import { Button, Card, Screen, TIText } from '@/components/ui';
 import { useTheme } from '@/theme';
@@ -9,7 +10,7 @@ export default function DisclaimerScreen() {
   return (
     <Screen>
       <Card style={{ gap: t.space.md }}>
-        <Text style={{ fontSize: 40 }}>⚠️</Text>
+        <AppIcon size={40} name="warning-outline" />
         <TIText variant="h2">Educational Disclaimer</TIText>
         <TIText variant="body">{DISCLAIMER}</TIText>
       </Card>

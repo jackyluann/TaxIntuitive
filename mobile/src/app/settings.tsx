@@ -133,7 +133,7 @@ export default function SettingsScreen() {
       <SectionTitle>Your data</SectionTitle>
       <Card padded={false}>
         <ListRow
-          emoji="📊"
+          icon="stats-chart-outline"
           title="Reset progress on this device"
           subtitle={`${stats.totalXp} XP · ${stats.lessonsCompleted} lessons`}
           onPress={confirmReset}
@@ -143,7 +143,7 @@ export default function SettingsScreen() {
           <>
             <Divider />
             <ListRow
-              emoji="🗑️"
+              icon="trash-outline"
               title="Delete my account"
               subtitle="Removes your account and cloud data"
               onPress={confirmDelete}
@@ -160,10 +160,10 @@ export default function SettingsScreen() {
 
       <SectionTitle>Legal</SectionTitle>
       <Card padded={false}>
-        <ListRow emoji="🔒" title="Privacy Policy" onPress={() => router.push('/privacy')} />
+        <ListRow icon="lock-closed-outline" title="Privacy Policy" onPress={() => router.push('/privacy')} />
         <Divider />
         <ListRow
-          emoji="⚠️"
+          icon="warning-outline"
           title="Educational Disclaimer"
           onPress={() => router.push('/disclaimer')}
         />

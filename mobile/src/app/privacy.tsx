@@ -1,3 +1,4 @@
+import { AppIcon } from '@/components/AppIcon';
 import React from 'react';
 import { Linking, Text } from 'react-native';
 import { contact } from '@/content';
@@ -16,7 +17,7 @@ export default function PrivacyScreen() {
   return (
     <Screen>
       <Card style={{ gap: t.space.sm }}>
-        <Text style={{ fontSize: 36 }}>🔒</Text>
+        <AppIcon size={36} name="lock-closed-outline" />
         <TIText variant="h2">Privacy Policy</TIText>
         <TIText variant="caption" tone="muted">
           Draft · last updated 20 September 2026

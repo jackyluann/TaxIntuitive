@@ -109,7 +109,7 @@ export default function VideoScreen() {
           </View>
         ) : (
           <Card style={{ gap: t.space.sm }}>
-            <TIText variant="bodyStrong">Got a tax question of your own? 🎤</TIText>
+            <TIText variant="bodyStrong">Got a tax question of your own?</TIText>
             <TIText variant="small" tone="muted">
               Send it in and it might become the next episode.
             </TIText>

@@ -1,3 +1,4 @@
+import { AppIcon } from '@/components/AppIcon';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -28,7 +29,7 @@ export default function XpScreen() {
   return (
     <Screen>
       <Card style={{ alignItems: 'center', gap: t.space.md }}>
-        <ScoreRing value={stats.literacyScore} label="Literacy score" />
+        <ScoreRing value={stats.literacyScore} label="Learning progress" />
         <View style={{ alignItems: 'center' }}>
           <TIText variant="h2">
             Level {stats.level} · {stats.levelTitle}
@@ -113,7 +114,7 @@ export default function XpScreen() {
       <SectionTitle>Achievements</SectionTitle>
       <Card onPress={() => router.push('/achievements')}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.md }}>
-          <Text style={{ fontSize: 26 }}>🏆</Text>
+          <AppIcon size={26} name="trophy-outline" />
           <View style={{ flex: 1 }}>
             <TIText variant="bodyStrong">
               {earned.length} of {achievements.length} earned

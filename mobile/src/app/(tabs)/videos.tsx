@@ -111,7 +111,7 @@ export default function VideosScreen() {
       <SectionTitle>{query || category ? 'Results' : 'All episodes'}</SectionTitle>
       {results.length === 0 ? (
         <EmptyState
-          emoji="🎥"
+          icon="videocam-outline"
           title="No videos match"
           body="Try a different search or category."
         />

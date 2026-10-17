@@ -1,16 +1,15 @@
 /**
  * TaxIntuitive design tokens.
  *
- * Brand colours come from the website / app prototype:
- *   primary green #12B886, dark green #0F9C74, orange accent #FF922B.
+ * Forest green anchors navigation and actions; amber highlights rewards.
  * Everything else is derived so light and dark both stay legible and calm.
  */
 
 export const brand = {
-  green: '#12B886',
-  greenDark: '#0F9C74',
+  green: '#18745B',
+  greenDark: '#125C49',
   teal: '#0CA678',
-  orange: '#FF922B',
+  orange: '#EAB66A',
   orangeDark: '#B25A10',
 } as const;
 
@@ -57,9 +56,9 @@ export interface ThemeColors {
 }
 
 export const lightColors: ThemeColors = {
-  bg: '#F2FBF7',
+  bg: '#F6F7F3',
   card: '#FFFFFF',
-  subtle: '#F6FBF9',
+  subtle: '#EFF3ED',
   ink: '#0F2F28',
   muted: '#5A726B',
   line: '#DCECE5',
@@ -67,7 +66,7 @@ export const lightColors: ThemeColors = {
   brandDark: brand.greenDark,
   onBrand: '#FFFFFF',
   accent: brand.orange,
-  onAccent: '#FFFFFF',
+  onAccent: '#35250F',
   success: '#2F9E44',
   successBg: '#E7F6EC',
   danger: '#E03131',
@@ -96,7 +95,7 @@ export const darkColors: ThemeColors = {
   muted: '#9DB5AD',
   line: '#1F3B33',
   brand: '#2BD3A0',
-  brandDark: '#12B886',
+  brandDark: '#2BD3A0',
   onBrand: '#04201A',
   accent: '#FFA94D',
   onAccent: '#2A1400',
@@ -154,8 +153,8 @@ export const type = {
 /** Cross-platform soft shadow. */
 export const shadow = (color: string) => ({
   shadowColor: color,
-  shadowOffset: { width: 0, height: 6 },
-  shadowOpacity: 1,
-  shadowRadius: 16,
-  elevation: 3,
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.12,
+  shadowRadius: 8,
+  elevation: 1,
 });

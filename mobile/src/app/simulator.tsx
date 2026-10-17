@@ -1,3 +1,4 @@
+import { AppIcon } from '@/components/AppIcon';
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -154,7 +155,7 @@ export default function SimulatorScreen() {
       <SafeAreaView style={{ flex: 1, backgroundColor: t.colors.bg }} edges={['left', 'right']}>
         <ScrollView contentContainerStyle={{ padding: t.space.lg, gap: t.space.lg }}>
           <Card style={{ alignItems: 'center', gap: t.space.sm }}>
-            <Text style={{ fontSize: 54 }}>{verdict.emoji}</Text>
+            <AppIcon size={54} name={verdict.icon} />
             <TIText variant="h1" center>
               {verdict.title}
             </TIText>
@@ -185,7 +186,7 @@ export default function SimulatorScreen() {
           {uniqueLessons.length ? (
             <Card style={{ gap: t.space.sm }}>
               <Text style={{ ...t.type.overline, color: t.colors.brandDark }}>
-                WHAT THIS YEAR TAUGHT YOU 💡
+                WHAT THIS YEAR TAUGHT YOU
               </Text>
               {uniqueLessons.map((lesson, i) => (
                 <View key={i} style={{ flexDirection: 'row', gap: t.space.sm }}>
@@ -329,10 +330,10 @@ export function tierFor(cash: number, smarts: number, maxSmarts: number): Simula
 
 const VERDICTS: Record<
   SimulatorTier,
-  { emoji: string; title: string; body: string; tips: string[] }
+  { icon: string; title: string; body: string; tips: string[] }
 > = {
   broke: {
-    emoji: '💸',
+    icon: 'wallet-outline',
     title: 'You ran out of money',
     body: 'Year one got the better of your wallet — but every lesson below is a second chance.',
     tips: [
@@ -342,7 +343,7 @@ const VERDICTS: Record<
     ],
   },
   bronze: {
-    emoji: '🥉',
+    icon: 'medal-outline',
     title: 'Bronze — Getting There',
     body: 'You survived. Review the lessons and play again to level up your money smarts.',
     tips: [
@@ -352,7 +353,7 @@ const VERDICTS: Record<
     ],
   },
   silver: {
-    emoji: '🥈',
+    icon: 'medal-outline',
     title: 'Silver — Money Smart',
     body: "Strong year! A few sharper money moves and you'll be untouchable.",
     tips: [
@@ -362,7 +363,7 @@ const VERDICTS: Record<
     ],
   },
   gold: {
-    emoji: '🥇',
+    icon: 'medal-outline',
     title: 'Gold — Financially Literate!',
     body: 'Outstanding. You handled taxes, savings and surprises like a pro.',
     tips: [
