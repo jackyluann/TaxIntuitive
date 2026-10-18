@@ -177,6 +177,7 @@ export default function LessonScreen() {
 function formatDate(iso: string) {
   try {
     return new Date(iso).toLocaleDateString('en-CA', {
+      timeZone: 'UTC',
       year: 'numeric',
       month: 'short',
       day: 'numeric',
