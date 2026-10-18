@@ -51,7 +51,7 @@ export const faqs: Faq[] = [
     id: 'faq-canadian',
     question: 'Is the tax info Canadian or American?',
     answer:
-      'Canadian. Our content is based on the Canada Revenue Agency (CRA) and Canadian rules — things like T4s, TFSAs, RRSPs, and the GST/HST credit.',
+      'Canadian. Our content is based on the Canada Revenue Agency (CRA) and Canadian rules — things like T4s, TFSAs, RRSPs, and the CGEB (formerly GST/HST credit).',
     order: 7,
   },
   {

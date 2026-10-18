@@ -238,6 +238,7 @@ export default function QuizScreen() {
           <ProgressBar value={index / questions.length} />
         </View>
 
+        {question.difficulty ? <Pill label={question.difficulty.charAt(0).toUpperCase() + question.difficulty.slice(1)} /> : null}
         <TIText variant="h2">{question.prompt}</TIText>
 
         <View style={{ gap: t.space.sm }}>

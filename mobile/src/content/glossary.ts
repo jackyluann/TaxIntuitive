@@ -46,7 +46,7 @@ export const glossary: GlossaryTerm[] = [
     categoryId: 'tax-basics',
   },
   {
-    term: 'GST/HST credit',
+    term: 'CGEB (formerly GST/HST credit)',
     definition: 'A tax free payment that helps lower income people with sales tax.',
     categoryId: 'credits-and-benefits',
   },

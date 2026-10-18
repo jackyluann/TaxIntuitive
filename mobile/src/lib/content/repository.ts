@@ -168,6 +168,7 @@ export async function fetchRemoteContent(): Promise<ContentBundle | null> {
         prompt: q.prompt,
         options: asStringArray(q.options),
         answerIndex: q.answer_index,
+        difficulty: q.difficulty ?? undefined,
         explanation: q.explanation,
         teachesLessonId: q.teaches_lesson_id ?? undefined,
       })),

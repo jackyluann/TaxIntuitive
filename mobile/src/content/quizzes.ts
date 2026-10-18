@@ -1,3 +1,4 @@
+import { moduleQuizzes, moduleQuestions } from './module-pack';
 import type { Quiz, QuizQuestion } from './types';
 
 /**
@@ -6,6 +7,7 @@ import type { Quiz, QuizQuestion } from './types';
  * plain-language explanation and points at the lesson that teaches it.
  */
 export const questions: QuizQuestion[] = [
+  ...moduleQuestions,
   /* ------------------------------------------------------------------ tax basics */
   {
     id: 'q-basics-1',
@@ -295,17 +297,17 @@ export const questions: QuizQuestion[] = [
   {
     id: 'q-ben-1',
     categoryId: 'credits-and-benefits',
-    prompt: 'To qualify for the GST/HST credit on your own, you generally must be at least…',
+    prompt: 'To qualify for the CGEB (formerly GST/HST credit) on your own, you generally must be at least…',
     options: ['16', '18', '19', '25'],
     answerIndex: 2,
     explanation:
-      'You generally need to be 19 or older to get the GST/HST credit on your own (younger people can qualify if they are a parent or have a spouse/partner).',
+      'You generally need to be 19 or older to get the CGEB (formerly GST/HST credit) on your own (younger people can qualify if they are a parent or have a spouse/partner).',
     teachesLessonId: 'lesson-credits-benefits',
   },
   {
     id: 'q-ben-2',
     categoryId: 'credits-and-benefits',
-    prompt: 'How do you receive the GST/HST credit and related benefits?',
+    prompt: 'How do you receive the CGEB (formerly GST/HST credit) and related benefits?',
     options: [
       'Apply at a bank',
       "By filing your tax return — it's assessed automatically",
@@ -320,7 +322,7 @@ export const questions: QuizQuestion[] = [
   {
     id: 'q-ben-3',
     categoryId: 'credits-and-benefits',
-    prompt: 'Is the GST/HST credit considered taxable income?',
+    prompt: 'Is the CGEB (formerly GST/HST credit) considered taxable income?',
     options: [
       'Yes, you pay tax on it',
       "No — it's tax-free",
@@ -329,7 +331,7 @@ export const questions: QuizQuestion[] = [
     ],
     answerIndex: 1,
     explanation:
-      'The GST/HST credit is a tax-free payment meant to offset sales tax for lower-income people.',
+      'The CGEB (formerly GST/HST credit) is a tax-free payment meant to offset sales tax for lower-income people.',
     teachesLessonId: 'lesson-credits-benefits',
   },
   {
@@ -344,7 +346,7 @@ export const questions: QuizQuestion[] = [
     ],
     answerIndex: 1,
     explanation:
-      'Payments like the GST/HST credit and Canada Child Benefit are based on the info in your return — no return, no payments.',
+      'Payments like the CGEB (formerly GST/HST credit) and Canada Child Benefit are based on the info in your return — no return, no payments.',
     teachesLessonId: 'lesson-credits-benefits',
   },
   {
@@ -524,6 +526,7 @@ export const questions: QuizQuestion[] = [
  * so adding a question to the bank automatically extends the topic quiz.
  */
 export const quizzes: Quiz[] = [
+  ...moduleQuizzes,
   {
     id: 'quiz-weekly',
     slug: 'quiz-of-the-week',
@@ -582,7 +585,7 @@ export const quizzes: Quiz[] = [
     id: 'quiz-benefits',
     slug: 'credits-and-benefits',
     title: 'Credits & Benefits',
-    description: 'GST/HST credit, free help, and payments.',
+    description: 'CGEB (formerly GST/HST credit), free help, and payments.',
     emoji: '🎁',
     kind: 'topic',
     categoryId: 'credits-and-benefits',

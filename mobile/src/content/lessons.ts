@@ -1,3 +1,4 @@
+import { moduleLessons } from './module-pack';
 import type { Lesson, OfficialSource } from './types';
 
 /**
@@ -29,7 +30,7 @@ const FREE_CLINICS: OfficialSource = {
   url: 'https://www.canada.ca/en/revenue-agency/campaigns/free-tax-help.html',
 };
 const GST_CREDIT: OfficialSource = {
-  label: 'GST/HST credit — CRA',
+  label: 'CGEB (formerly GST/HST credit) — CRA',
   url: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/goods-services-tax-harmonized-sales-tax-gst-hst-credit.html',
 };
 const TFSA: OfficialSource = {
@@ -53,6 +54,7 @@ const EI: OfficialSource = {
 const REVIEWED = '2026-09-20';
 
 export const lessons: Lesson[] = [
+  ...moduleLessons,
   /* ------------------------------------------------------------------ tax basics */
   {
     id: 'lesson-tax-basics-what-are-taxes',
@@ -351,10 +353,10 @@ export const lessons: Lesson[] = [
         type: 'paragraph',
         text: 'Here is a part people wish they learned sooner. Filing your taxes is not only about paying. It can also unlock payments that come to you, even if you earned very little.',
       },
-      { type: 'heading', text: 'The GST/HST credit' },
+      { type: 'heading', text: 'The CGEB (formerly GST/HST credit)' },
       {
         type: 'paragraph',
-        text: 'One common one is the GST/HST credit. It is a tax free payment that helps lower income people with the sales tax they pay on everyday things. A few points to know:',
+        text: 'One common one is the CGEB (formerly GST/HST credit). It is a tax free payment that helps lower income people with the sales tax they pay on everyday things. A few points to know:',
       },
       {
         type: 'bullets',
@@ -372,11 +374,11 @@ export const lessons: Lesson[] = [
       { type: 'heading', text: 'Why filing matters so much' },
       {
         type: 'paragraph',
-        text: 'Payments like the GST/HST credit and the Canada Child Benefit are calculated using the information on your tax return. No return means the CRA cannot calculate them, so the payments can stop. The rule is simple: file every single year, even a year when you had no income, so your payments keep coming.',
+        text: 'Payments like the CGEB (formerly GST/HST credit) and the Canada Child Benefit are calculated using the information on your tax return. No return means the CRA cannot calculate them, so the payments can stop. The rule is simple: file every single year, even a year when you had no income, so your payments keep coming.',
       },
     ],
     keyTakeaways: [
-      'The GST/HST credit is a tax free payment for lower income people.',
+      'The CGEB (formerly GST/HST credit) is a tax free payment for lower income people.',
       'You generally need to be 19 or older to get it on your own.',
       'You get it just by filing. There is no separate application.',
       'Benefit payments are based on your return, so file every year.',
@@ -647,7 +649,7 @@ export const lessons: Lesson[] = [
           'EI',
           'NETFILE',
           'Refund',
-          'GST/HST credit',
+          'CGEB (formerly GST/HST credit)',
           'TFSA',
           'RRSP',
           'T4',
@@ -817,7 +819,7 @@ export const lessons: Lesson[] = [
       {
         type: 'tip',
         title: 'Refundable vs non-refundable',
-        text: 'Some credits can only reduce tax to zero. Others, like the GST/HST credit, can pay you even when you owe nothing — which is why filing matters at low incomes.',
+        text: 'Some credits can only reduce tax to zero. Others, like the CGEB (formerly GST/HST credit), can pay you even when you owe nothing — which is why filing matters at low incomes.',
       },
       {
         type: 'warning',
@@ -924,7 +926,7 @@ export const lessons: Lesson[] = [
       {
         type: 'tip',
         title: 'So a raise is still a raise',
-        text: 'More income always means more take-home pay in Canada. You keep less of the top slice than the bottom slice, but you never go backwards.',
+        text: 'A higher income-tax bracket alone does not reduce the after-tax income from a raise. Income-tested benefit reductions and other deductions must be considered separately.',
       },
       {
         type: 'warning',
@@ -935,7 +937,7 @@ export const lessons: Lesson[] = [
     keyTakeaways: [
       'Canada taxes income in slices, each at its own rate.',
       'A higher bracket applies only to the dollars in that bracket.',
-      'Earning more never lowers your total take-home pay.',
+      'A higher tax bracket alone does not erase the benefit of earning more.',
       'Bracket thresholds and rates change every year — always look them up.',
     ],
   },

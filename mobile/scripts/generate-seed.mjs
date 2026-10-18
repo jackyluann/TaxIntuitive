@@ -154,10 +154,10 @@ function buildSql(content) {
   out.push(
     insert(
       'content_questions',
-      ['id', 'category_id', 'prompt', 'options', 'answer_index', 'explanation', 'teaches_lesson_id', 'published'],
+      ['id', 'category_id', 'prompt', 'options', 'answer_index', 'explanation', 'teaches_lesson_id', 'difficulty', 'published'],
       content.questions.map((x) => [
         q(x.id), q(x.categoryId), q(x.prompt), jsonb(x.options), num(x.answerIndex),
-        q(x.explanation), x.teachesLessonId ? q(x.teachesLessonId) : 'null', 'true',
+        q(x.explanation), x.teachesLessonId ? q(x.teachesLessonId) : 'null', q(x.difficulty), 'true',
       ]),
       'id',
     ),

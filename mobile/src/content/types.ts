@@ -90,6 +90,7 @@ export interface Lesson {
 export type QuizKind = 'topic' | 'weekly' | 'challenge';
 
 export interface QuizQuestion {
+  difficulty?: 'easy' | 'medium' | 'hard';
   id: string;
   /** Quiz category, matches a lesson category so a wrong answer can recommend a lesson. */
   categoryId: LessonCategoryId;

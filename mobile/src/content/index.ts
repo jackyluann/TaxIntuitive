@@ -18,11 +18,11 @@ import { achievements } from './achievements';
 import type { ContentBundle } from './types';
 
 /** Bump when seed content changes so caches know to refresh. */
-export const CONTENT_VERSION = 1;
+export const CONTENT_VERSION = 2;
 
 export const bundledContent: ContentBundle = {
   version: CONTENT_VERSION,
-  generatedAt: '2026-09-20',
+  generatedAt: '2026-10-18',
   categories,
   lessons,
   quizzes,

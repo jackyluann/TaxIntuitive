@@ -202,6 +202,7 @@ export interface ContentQuizRow {
 }
 
 export interface ContentQuestionRow {
+  difficulty?: 'easy' | 'medium' | 'hard' | null;
   id: string;
   category_id: string;
   prompt: string;
