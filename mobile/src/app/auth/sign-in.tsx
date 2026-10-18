@@ -16,7 +16,6 @@ export default function SignInScreen() {
     signInWithEmail,
     signInWithApple,
     signInWithGoogle,
-    sendPasswordReset,
     authAvailable,
     appleAvailable,
   } = useAuth();
@@ -95,19 +94,7 @@ export default function SignInScreen() {
           error={errors.password}
         />
         <Button label="Sign in" onPress={submit} loading={busy === 'email'} fullWidth />
-        <Button
-          label="Forgot password?"
-          variant="ghost"
-          loading={busy === 'reset'}
-          onPress={() => {
-            if (!isValidEmail(email)) {
-              setErrors({ email: 'Enter your email first, then tap reset.' });
-              return;
-            }
-            void run('reset', () => sendPasswordReset(email), 'Check your email for a reset link.');
-          }}
-          fullWidth
-        />
+        <TIText variant="small" tone="muted">Password recovery is not available during this beta. Please keep your password saved.</TIText>
       </Card>
 
       {(process.env.EXPO_PUBLIC_GOOGLE_AUTH_ENABLED === 'true' || (Platform.OS === 'ios' && appleAvailable)) ? <View style={{ gap: t.space.sm }}>

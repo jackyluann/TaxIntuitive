@@ -38,18 +38,27 @@ export default function SignUpScreen() {
     }
   };
 
-  const submit = () => {
+  const submit = async () => {
+    if (busy) return;
     const next: Record<string, string> = {};
     if (name.trim().length < 2) next.name = 'Pick a display name (2+ characters).';
     if (!isValidEmail(email)) next.email = 'Enter a valid email address.';
     if (password.length < 8) next.password = 'Use at least 8 characters.';
     setErrors(next);
     if (Object.keys(next).length) return;
-    void run(
-      'email',
-      () => signUpWithEmail(email, password, name),
-      'Check your email to confirm your address, then sign in.',
-    );
+    setBusy('email');
+    try {
+      const { signedIn } = await signUpWithEmail(email, password, name);
+      if (signedIn) {
+        router.replace('/');
+      } else {
+        Alert.alert('Check your email', 'Confirm your email address, then sign in. If no message arrives, contact support before trying again.');
+      }
+    } catch (e) {
+      Alert.alert('Could not create account', e instanceof Error ? e.message : 'Please try again.');
+    } finally {
+      setBusy(null);
+    }
   };
 
   if (!authAvailable) {
@@ -83,9 +92,7 @@ export default function SignUpScreen() {
             </TIText>
           </Card>
         ) : null}
-        {Platform.OS === 'web' && process.env.EXPO_PUBLIC_EMAIL_SIGNUP_ENABLED !== 'true' ? (
-          <TIText variant="small" tone="muted">Public account registration is coming soon. Explore lessons, practice quizzes and the simulator as a guest. Quiz Duo currently requires a test account.</TIText>
-        ) : null}
+        <TIText variant="small" tone="muted">Beta accounts use email and password. Email verification and password recovery are currently unavailable. Please save your password.</TIText>
         <Field
           label="Display name"
           value={name}
@@ -115,7 +122,7 @@ export default function SignUpScreen() {
           autoComplete="new-password"
           error={errors.password}
         />
-        <Button label="Create account" disabled={Platform.OS === 'web' && process.env.EXPO_PUBLIC_EMAIL_SIGNUP_ENABLED !== 'true'} onPress={submit} loading={busy === 'email'} fullWidth />
+        <Button label="Create account" disabled={busy !== null} onPress={submit} loading={busy === 'email'} fullWidth />
       </Card>
 
       {(process.env.EXPO_PUBLIC_GOOGLE_AUTH_ENABLED === 'true' || (Platform.OS === 'ios' && appleAvailable)) ? <View style={{ gap: t.space.sm }}>

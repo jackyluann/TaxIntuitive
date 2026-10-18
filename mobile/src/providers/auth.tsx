@@ -19,7 +19,7 @@ export interface AuthState {
   authAvailable: boolean;
   appleAvailable: boolean;
 
-  signUpWithEmail(email: string, password: string, displayName: string): Promise<void>;
+  signUpWithEmail(email: string, password: string, displayName: string): Promise<{ signedIn: boolean }>;
   signInWithEmail(email: string, password: string): Promise<void>;
   signInWithApple(): Promise<void>;
   signInWithGoogle(): Promise<void>;
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUpWithEmail = useCallback(
     async (email: string, password: string, displayName: string) => {
       const client = requireSupabase();
-      const { error } = await client.auth.signUp({
+      const { data, error } = await client.auth.signUp({
         email: email.trim(),
         password,
         options: {
@@ -76,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       });
       if (error) throw new Error(error.message);
+      return { signedIn: Boolean(data.session) };
     },
     [],
   );
