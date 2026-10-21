@@ -1,0 +1,24 @@
+{
+  "status": "draft_not_submitted",
+  "name": "TaxIntuitive",
+  "subtitle": "Canadian money skills",
+  "version": "1.0.0",
+  "bundleIdentifier": "com.taxintuitive.app",
+  "primaryLanguage": "en-CA",
+  "primaryCategory": "EDUCATION",
+  "description": "Build confidence with Canadian taxes and everyday money decisions. TaxIntuitive offers short lessons, practice quizzes, a money simulator, and Quiz Duo challenges with friends. Learn as a guest, or create an account to sync progress and play Quiz Duo.\n\nTaxIntuitive provides general educational information, not tax, legal, or financial advice. Confirm current rules with the Canada Revenue Agency.",
+  "keywords": "Canada,taxes,financial literacy,quiz,budget,money,learning",
+  "marketingUrl": "https://adorable-genie-b90617.netlify.app",
+  "privacyPolicyUrl": "https://adorable-genie-b90617.netlify.app/privacy",
+  "supportUrl": "https://adorable-genie-b90617.netlify.app/about",
+  "releaseNotes": "First iOS release with Canadian financial education lessons, practice quizzes, a simulator and Quiz Duo.",
+  "reviewNotes": "Lessons and practice are available without signing in. Quiz Duo requires an account. Reviewer credentials and a second-player test procedure must be supplied before review.",
+  "pending": [
+    "Apple Developer team and signing",
+    "Signed release archive and upload",
+    "Real iPhone and iPad screenshots",
+    "Review privacy policy draft and App Privacy answers",
+    "Reviewer account and end-to-end account deletion test",
+    "Age rating, availability and release settings"
+  ]
+}

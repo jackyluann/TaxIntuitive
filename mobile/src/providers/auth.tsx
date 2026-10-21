@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (Platform.OS !== 'ios') return;
+    if (Platform.OS !== 'ios' || process.env.EXPO_PUBLIC_APPLE_AUTH_ENABLED !== 'true') return;
     AppleAuthentication.isAvailableAsync()
       .then(setAppleAvailable)
       .catch(() => setAppleAvailable(false));
