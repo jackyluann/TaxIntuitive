@@ -32,7 +32,7 @@ export default function QuizzesScreen() {
   return (
     <Screen>
       <Card style={{ gap: t.space.sm }}>
-        <TIText variant="h2">Tax Trivia & Quizzes 🇨🇦</TIText>
+        <TIText variant="h2">Tax Trivia & Quizzes</TIText>
         <TIText variant="small" tone="muted">
           Test your tax smarts in plain language. Every answer comes with a simple explanation — and
           points you at the lesson that covers it.

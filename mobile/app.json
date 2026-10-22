@@ -17,7 +17,7 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "icon": "./assets/images/app-store-icon.png",
-      "buildNumber": "1"
+      "buildNumber": "2"
     },
     "android": {
       "package": "com.taxintuitive.app",
