@@ -1,5 +1,5 @@
 {
-  "status": "app_record_created_build_pending",
+  "status": "build_uploaded_submission_preparation",
   "name": "TaxIntuitive",
   "subtitle": "Canadian money skills",
   "version": "1.0.0",
@@ -12,14 +12,12 @@
   "privacyPolicyUrl": "https://adorable-genie-b90617.netlify.app/privacy",
   "supportUrl": "https://adorable-genie-b90617.netlify.app/about",
   "releaseNotes": "First iOS release with Canadian financial education lessons, practice quizzes, a simulator and Quiz Duo.",
-  "reviewNotes": "Lessons and practice are available without signing in. Quiz Duo requires an account. Reviewer credentials and a second-player test procedure must be supplied before review.",
+  "reviewNotes": "Two dedicated reviewer accounts and the Quiz Duo two-device procedure are saved in App Store Connect. Credentials are not stored in this repository.",
   "pending": [
-    "Signed release archive and upload",
-    "Real iPhone and iPad screenshots",
-    "Review privacy policy draft and App Privacy answers",
-    "Reviewer account and end-to-end account deletion test",
-    "Age rating, availability and release settings",
-    "Owner review contact details and content publishing rights confirmation"
+    "Publish completed App Privacy answers after owner confirms Apple declaration",
+    "Set distribution territories",
+    "Deploy updated website privacy policy after Netlify login",
+    "Final App Store submission validation and submission"
   ],
   "appleId": "6825576472",
   "teamId": "7478P3N2NF",
@@ -28,6 +26,12 @@
     "typescript": "passed",
     "unitTests": "80 tests passed in 11 suites",
     "unsignedArchive": "passed using Xcode 27.0",
-    "accountDeletion": "passed on hosted Supabase using disposable account, 2026-10-21"
-  }
+    "accountDeletion": "passed on hosted Supabase using disposable account, 2026-10-21",
+    "signedArchive": "build 2 passed using Xcode 27.0",
+    "upload": "build 2 uploaded successfully and available in App Store Connect, 2026-10-21",
+    "screenshots": "Native iPhone 1206x2622 and iPad 2064x2752 screenshots uploaded",
+    "reviewAccounts": "Two dedicated accounts created and login verified; details saved in App Store Connect"
+  },
+  "buildNumber": "2",
+  "ageRating": "13+ (12+ on older operating systems and certain regional stores)"
 }
