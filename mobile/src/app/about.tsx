@@ -79,7 +79,7 @@ export default function AboutScreen() {
               Founder, TaxIntuitive · Budding entrepreneur
             </TIText>
             <TIText variant="caption" tone="muted">
-              Grade 11 student · Vancouver, British Columbia 🇨🇦
+              Grade 11 student · Vancouver, British Columbia
             </TIText>
           </View>
         </View>
@@ -176,7 +176,7 @@ export default function AboutScreen() {
           onPress={() => void Linking.openURL(contact.siteUrl)}
           style={{ color: t.colors.muted, textAlign: 'center', fontSize: 13 }}
         >
-          taxintuitive.com ↗
+          Visit our website
         </Text>
       </Card>
 

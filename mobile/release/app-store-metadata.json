@@ -1,5 +1,5 @@
 {
-  "status": "draft_not_submitted",
+  "status": "app_record_created_build_pending",
   "name": "TaxIntuitive",
   "subtitle": "Canadian money skills",
   "version": "1.0.0",
@@ -14,11 +14,20 @@
   "releaseNotes": "First iOS release with Canadian financial education lessons, practice quizzes, a simulator and Quiz Duo.",
   "reviewNotes": "Lessons and practice are available without signing in. Quiz Duo requires an account. Reviewer credentials and a second-player test procedure must be supplied before review.",
   "pending": [
-    "Apple Developer team and signing",
     "Signed release archive and upload",
     "Real iPhone and iPad screenshots",
     "Review privacy policy draft and App Privacy answers",
     "Reviewer account and end-to-end account deletion test",
-    "Age rating, availability and release settings"
-  ]
+    "Age rating, availability and release settings",
+    "Owner review contact details and content publishing rights confirmation"
+  ],
+  "appleId": "6825576472",
+  "teamId": "7478P3N2NF",
+  "provisioningProfile": "TaxIntuitive App Store",
+  "verification": {
+    "typescript": "passed",
+    "unitTests": "80 tests passed in 11 suites",
+    "unsignedArchive": "passed using Xcode 27.0",
+    "accountDeletion": "passed on hosted Supabase using disposable account, 2026-10-21"
+  }
 }

@@ -15,5 +15,5 @@ export const workshops: Workshop[] = [];
 export const contact = {
   email: 'jackyluan777@gmail.com',
   location: 'Vancouver, BC',
-  siteUrl: 'https://www.taxintuitive.com',
+  siteUrl: 'https://adorable-genie-b90617.netlify.app',
 };

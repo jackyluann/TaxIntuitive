@@ -20,7 +20,7 @@ export default function PrivacyScreen() {
         <AppIcon size={36} name="lock-closed-outline" />
         <TIText variant="h2">Privacy Policy</TIText>
         <TIText variant="caption" tone="muted">
-          Draft · last updated 20 September 2026
+          Last updated 21 October 2026
         </TIText>
         <TIText variant="small">
           TaxIntuitive is built for young people learning about money. We collect as little as
@@ -28,7 +28,7 @@ export default function PrivacyScreen() {
         </TIText>
       </Card>
 
-      <SectionTitle>What we never collect</SectionTitle>
+      <SectionTitle>Information we do not request</SectionTitle>
       <Card style={{ gap: 6 }}>
         {[
           'Social Insurance Numbers (SIN)',
@@ -42,7 +42,7 @@ export default function PrivacyScreen() {
           </TIText>
         ))}
         <TIText variant="caption" tone="brand">
-          The app has no field anywhere that asks for these. If something ever does, it is not us.
+          Do not include sensitive financial information in messages or workshop requests.
         </TIText>
       </Card>
 
@@ -58,7 +58,7 @@ export default function PrivacyScreen() {
       <Card style={{ gap: t.space.sm }}>
         <TIText variant="small">We store only what makes the account work:</TIText>
         <TIText variant="small" tone="muted">
-          • Your email address (or the private relay address Apple/Google gives us)
+          • Your email address
         </TIText>
         <TIText variant="small" tone="muted">
           • A display name you choose, so a Quiz Duo opponent knows who they are playing
@@ -70,8 +70,10 @@ export default function PrivacyScreen() {
           • Quiz Duo match results
         </TIText>
         <TIText variant="small">
-          Your rows are protected by database row-level security, which means your data is readable
-          only by you — and, for a Quiz Duo match, the one opponent in that match.
+          Database access rules restrict other users from reading your private progress. Quiz Duo
+          shares the match information needed by your opponent, including your display name and
+          results. Authorized service operators can access stored information to run and support
+          the app.
         </TIText>
       </Card>
 
@@ -87,7 +89,19 @@ export default function PrivacyScreen() {
       <Card style={{ gap: t.space.sm }}>
         <TIText variant="small" tone="muted">
           You can reset on-device progress at any time in Settings. If you have an account, Settings →
-          Delete my account permanently removes the account and everything stored with it.
+          Delete my account removes your account and linked learning progress. Contact messages and
+          workshop requests are retained separately so we can respond, with their account link
+          removed. Contact us below to request deletion of those submissions.
+        </TIText>
+      </Card>
+
+      <SectionTitle>Messages and workshop requests</SectionTitle>
+      <Card>
+        <TIText variant="small" tone="muted">
+          If you contact us or request a workshop, we store the details you submit, such as your
+          name, email, organization, preferred date and message, so we can respond. This also
+          applies when you use the app as a guest. Do not submit tax documents, banking details
+          or other sensitive financial information.
         </TIText>
       </Card>
 
